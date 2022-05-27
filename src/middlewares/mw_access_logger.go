@@ -19,6 +19,7 @@ func AccessLogger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
 		ctx := request.Context()
 		ctxData := ctxutils.GetRequestContextData(ctx)
+
 		// An unlikely scenario, but no harm in checking.
 		if ctxData == nil {
 			log.Error(ctx, &logger.Entry{Payload: "No context data found for request"})
