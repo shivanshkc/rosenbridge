@@ -19,14 +19,14 @@ func Recovery(next http.Handler) http.Handler {
 
 // recoverRequestPanic can be deferred inside a middleware/handler to handle any panics during request execution.
 func recoverRequestPanic(writer http.ResponseWriter, request *http.Request) {
-	log := logger.Get()
+	// Prerequisites.
+	ctx, log := request.Context(), logger.Get()
 
 	err := recover()
 	if err == nil {
 		return // No panic happened.
 	}
 
-	ctx := request.Context()
 	// Logging the panic for debug purposes.
 	log.Error(ctx, &logger.Entry{Payload: fmt.Errorf("panic occurred: %+v", err)})
 	// Sending sanitized response to the user.
