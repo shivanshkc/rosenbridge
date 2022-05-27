@@ -78,7 +78,7 @@ func newZapLogger() *zapLogger {
 
 // zapLevelFromString converts a string level to zapcore.Level.
 // If the conversion fails, the boolean is false.
-func zapLevelFromString(level string) (zapLevel zapcore.Level, ok bool) {
+func zapLevelFromString(level string) (zapcore.Level, bool) {
 	switch level {
 	case "debug":
 		return zap.DebugLevel, true
