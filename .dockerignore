@@ -1,6 +1,16 @@
 # Compiled output
 bin
 
+# Version control
+.git
+.gitignore
+
+# CI/CD files.
+.github
+
+# Configuration files.
+configs.yaml
+
 # IDE Metadata
 .idea
 .vscode

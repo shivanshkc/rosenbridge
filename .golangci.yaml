@@ -1,0 +1,30 @@
+---
+issues:
+  # Issues are auto fixed.
+  fix: true
+
+linters:
+  # Initially all linters are enabled.
+  enable-all: true
+  # Following linters are disabled.
+  disable:
+    - cyclop
+    - exhaustivestruct
+    - exhaustruct
+    - forbidigo
+    - funlen
+    - gci
+    - gochecknoglobals
+    - godox
+    - goerr113
+    - golint
+    - gomnd
+    - interfacer
+    - ireturn
+    - lll
+    - maligned
+    - nlreturn
+    - scopelint
+    - tagliatelle
+    - varnamelen
+    - wsl
