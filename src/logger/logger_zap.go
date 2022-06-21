@@ -11,8 +11,6 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var conf = configs.Get()
-
 // zapLogger implements Logger using uber/zap package.
 type zapLogger struct {
 	client *zap.Logger
@@ -48,6 +46,8 @@ func (z *zapLogger) Close() error {
 // newZapLogger provides a new instance of zapLogger.
 // Panic is allowed here because logger is crucial to the application.
 func newZapLogger() *zapLogger {
+	conf := configs.Get()
+
 	// Converting the Log level from string to zapcore.Level.
 	zapLevel, ok := zapLevelFromString(conf.Logger.Level)
 	if !ok {
