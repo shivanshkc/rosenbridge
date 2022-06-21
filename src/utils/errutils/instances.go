@@ -6,45 +6,45 @@ import (
 
 // BadRequest is for logically incorrect requests.
 func BadRequest() *HTTPError {
-	return &HTTPError{StatusCode: http.StatusBadRequest, CustomCode: "BAD_REQUEST"}
+	return &HTTPError{Status: http.StatusBadRequest, Code: "BAD_REQUEST"}
 }
 
 // Unauthorized is for requests with invalid credentials.
 func Unauthorized() *HTTPError {
-	return &HTTPError{StatusCode: http.StatusUnauthorized, CustomCode: "UNAUTHORIZED"}
+	return &HTTPError{Status: http.StatusUnauthorized, Code: "UNAUTHORIZED"}
 }
 
 // PaymentRequired is for requests that require payment completion.
 func PaymentRequired() *HTTPError {
-	return &HTTPError{StatusCode: http.StatusPaymentRequired, CustomCode: "PAYMENT_REQUIRED"}
+	return &HTTPError{Status: http.StatusPaymentRequired, Code: "PAYMENT_REQUIRED"}
 }
 
 // Forbidden is for requests that do not have enough authority to execute the operation.
 func Forbidden() *HTTPError {
-	return &HTTPError{StatusCode: http.StatusForbidden, CustomCode: "FORBIDDEN"}
+	return &HTTPError{Status: http.StatusForbidden, Code: "FORBIDDEN"}
 }
 
 // NotFound is for requests that try to access a non-existent resource.
 func NotFound() *HTTPError {
-	return &HTTPError{StatusCode: http.StatusNotFound, CustomCode: "NOT_FOUND"}
+	return &HTTPError{Status: http.StatusNotFound, Code: "NOT_FOUND"}
 }
 
 // RequestTimeout is for requests that take longer than a certain time limit to execute.
 func RequestTimeout() *HTTPError {
-	return &HTTPError{StatusCode: http.StatusRequestTimeout, CustomCode: "REQUEST_TIMEOUT"}
+	return &HTTPError{Status: http.StatusRequestTimeout, Code: "REQUEST_TIMEOUT"}
 }
 
 // Conflict is for requests that attempt paradoxical operations, such as re-creating the same resource.
 func Conflict() *HTTPError {
-	return &HTTPError{StatusCode: http.StatusConflict, CustomCode: "CONFLICT"}
+	return &HTTPError{Status: http.StatusConflict, Code: "CONFLICT"}
 }
 
 // PreconditionFailed is for requests that do not satisfy pre-business layers of the application.
 func PreconditionFailed() *HTTPError {
-	return &HTTPError{StatusCode: http.StatusPreconditionFailed, CustomCode: "PRECONDITION_FAILED"}
+	return &HTTPError{Status: http.StatusPreconditionFailed, Code: "PRECONDITION_FAILED"}
 }
 
 // InternalServerError is for requests that cause an unexpected misbehaviour.
 func InternalServerError() *HTTPError {
-	return &HTTPError{StatusCode: http.StatusInternalServerError, CustomCode: "INTERNAL_SERVER_ERROR"}
+	return &HTTPError{Status: http.StatusInternalServerError, Code: "INTERNAL_SERVER_ERROR"}
 }
