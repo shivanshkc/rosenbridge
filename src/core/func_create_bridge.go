@@ -75,7 +75,7 @@ func CreateBridge(ctx context.Context, params *CreateBridgeParams) (Bridge, erro
 		// If the bridge creation fails, we asynchronously attempt to remove the earlier created db record.
 		// Even if this request fails, the system will eventually identify the stale record and remove it.
 		go func() { _ = BridgeDatabase.DeleteBridgeForNode(ctx, bridgeIdentity, OwnDiscoveryAddr) }()
-
+		// Error-ing out.
 		return nil, fmt.Errorf("error in BridgeManager.CreateBridge call: %w", err)
 	}
 
