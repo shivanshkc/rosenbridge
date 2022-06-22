@@ -24,10 +24,6 @@ func TestCreateBridge_BridgeCloseHandler(t *testing.T) {
 	t.Parallel()
 }
 
-func TestCreateBridge_BridgeDatabase_DeleteBridgeError(t *testing.T) {
-	t.Parallel()
-}
-
 func TestCreateBridge_BridgeErrorHandler(t *testing.T) {
 	t.Parallel()
 }

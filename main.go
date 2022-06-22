@@ -17,8 +17,11 @@ func main() {
 	// Prerequisites.
 	ctx, conf, log := context.Background(), configs.Get(), logger.Get()
 
-	// Providing the discovery address to core.
+	// Providing the discovery address to the core.
 	core.OwnDiscoveryAddr = conf.HTTPServer.DiscoveryAddr
+	// Providing the required dependencies to the core.
+	core.BridgeManager = nil
+	core.BridgeDatabase = nil
 
 	// Startup log.
 	log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("server listening at: %s", conf.HTTPServer.Addr)})
