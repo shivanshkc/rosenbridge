@@ -17,8 +17,6 @@ const (
 
 // TestGetOwnIP tests if the GetOwnIP function returns a valid IP without failing.
 func TestGetOwnIP(t *testing.T) {
-	t.Parallel()
-
 	ip, err := httputils.GetOwnIP()
 	if err != nil {
 		t.Errorf("expected error: %+v, but got: %+v", nil, err)
@@ -34,8 +32,6 @@ func TestGetOwnIP(t *testing.T) {
 
 // TestGetClientIP_UsingXRealIP tests if the GetClientIP function prioritizes the "x-real-ip" header above others.
 func TestGetClientIP_UsingXRealIP(t *testing.T) {
-	t.Parallel()
-
 	request := httptest.NewRequest(http.MethodGet, "/", nil)
 	request.Header.Set("x-real-ip", mockIP1)
 	request.Header.Set("x-forwarded-for", mockIP2)
@@ -57,8 +53,6 @@ func TestGetClientIP_UsingXRealIP(t *testing.T) {
 // TestGetClientIP_UsingXForwardedFor tests if the GetClientIP function prioritizes the "x-forwarded-for" header
 // when "x-real-ip" is not provided.
 func TestGetClientIP_UsingXForwardedFor(t *testing.T) {
-	t.Parallel()
-
 	request := httptest.NewRequest(http.MethodGet, "/", nil)
 	request.Header.Set("x-forwarded-for", mockIP2)
 	request.RemoteAddr = mockIP3
@@ -79,8 +73,6 @@ func TestGetClientIP_UsingXForwardedFor(t *testing.T) {
 // TestGetClientIP_UsingRemoteAddr tests if the GetClientIP function uses request.RemoteAddr property when neither
 // "x-real-ip" nor "x-forwarded-for" are provided.
 func TestGetClientIP_UsingRemoteAddr(t *testing.T) {
-	t.Parallel()
-
 	request := httptest.NewRequest(http.MethodGet, "/", nil)
 	request.RemoteAddr = mockIP3 + ":80" // Port is required in RemoteAddr.
 
@@ -100,8 +92,6 @@ func TestGetClientIP_UsingRemoteAddr(t *testing.T) {
 // TestGetClientIP_NoMethod tests if the GetClientIP function returns an error when all methods to retrieve
 // IP address fail.
 func TestGetClientIP_NoMethod(t *testing.T) {
-	t.Parallel()
-
 	request := httptest.NewRequest(http.MethodGet, "/", nil)
 	request.RemoteAddr = ""
 
