@@ -98,7 +98,7 @@ func CreateBridge(ctx context.Context, params *CreateBridgeParams) (Bridge, erro
 		errHTTP := errutils.ToHTTPError(err)
 		// Forming the bridge message to before sending to client.
 		bridgeMessage := &BridgeMessage{
-			Type: messageErrorRes,
+			Type: MessageErrorRes,
 			// RequestID is not known.
 			RequestID: "",
 			Body:      &CodeAndReason{errHTTP.Code, errHTTP.Reason},
