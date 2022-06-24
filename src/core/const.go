@@ -14,19 +14,19 @@ const (
 
 // Persistence modes.
 const (
-	// persistTrue always persists the message.
-	persistTrue = "true"
-	// persistFalse never persists the message. If the receiver is offline, the message is lost forever.
-	persistFalse = "false"
-	// persistIfError persists the message only if there's an error while sending the message.
-	persistIfError = "if_error"
+	// PersistTrue always persists the message.
+	PersistTrue = "true"
+	// PersistFalse never persists the message. If the receiver is offline, the message is lost forever.
+	PersistFalse = "false"
+	// PersistIfError persists the message only if there's an error while sending the message.
+	PersistIfError = "if_error"
 )
 
 const (
-	// codeOK is the success code for all scenarios.
-	codeOK = "OK"
-	// codeOffline is the failure code for offline clients.
-	codeOffline = "OFFLINE"
-	// codeBridgeNotFound is the failure code when the intended bridge cannot be located.
-	// codeBridgeNotFound = "BRIDGE_NOT_FOUND".
+	// CodeOK is the success code for all scenarios.
+	CodeOK = "OK"
+	// CodeOffline is the failure code for offline clients.
+	CodeOffline = "OFFLINE"
+	// CodeBridgeNotFound is the failure code when the intended bridge cannot be located.
+	CodeBridgeNotFound = "BRIDGE_NOT_FOUND"
 )

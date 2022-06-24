@@ -39,7 +39,7 @@ func PostMessage(ctx context.Context, params *PostMessageParams) (*OutgoingMessa
 	for _, offlineClient := range offlineClients {
 		bridgeStatuses = append(bridgeStatuses, &BridgeStatus{
 			BridgeIdentity: &BridgeIdentity{ClientID: offlineClient},
-			CodeAndReason:  &CodeAndReason{Code: codeOffline, Reason: "receiver is offline"},
+			CodeAndReason:  &CodeAndReason{Code: CodeOffline, Reason: "receiver is offline"},
 		})
 	}
 
@@ -83,21 +83,21 @@ func PostMessage(ctx context.Context, params *PostMessageParams) (*OutgoingMessa
 
 	// The response that will finally be returned.
 	finalResponse := &OutgoingMessageRes{
-		CodeAndReason: &CodeAndReason{Code: codeOK},
-		Persistence:   &CodeAndReason{Code: codeOK},
+		CodeAndReason: &CodeAndReason{Code: CodeOK},
+		Persistence:   &CodeAndReason{Code: CodeOK},
 		Bridges:       bridgeStatuses,
 	}
 
 	var clientsForPersistence []string
 	switch params.Persist {
 	// If persist is set to false, there's nothing left to do.
-	case persistFalse:
+	case PersistFalse:
 		return finalResponse, nil
 	// If persist is set to true, the message will be persisted for all receivers.
-	case persistTrue:
+	case PersistTrue:
 		clientsForPersistence = params.ReceiverIDs
 	// If persist is set to if_error, the message will be persisted for only failed clients.
-	case persistIfError:
+	case PersistIfError:
 		clientsForPersistence = neverPassed
 	}
 
@@ -205,7 +205,7 @@ func processClusterCallData(ccData []*clusterCallData) ([]string, []*BridgeStatu
 			continue
 		}
 		// If the global code is not OK, it means that all bridges in this request failed to receive the message.
-		if data.res.Code != codeOK {
+		if data.res.Code != CodeOK {
 			// Looping over all bridges in the request to add bridge statuses.
 			for _, bridge := range data.req.Bridges {
 				bridgeStatuses = append(bridgeStatuses, &BridgeStatus{
@@ -219,7 +219,7 @@ func processClusterCallData(ccData []*clusterCallData) ([]string, []*BridgeStatu
 		bridgeStatuses = append(bridgeStatuses, data.res.Bridges...)
 		// Looping over all bridge statuses to populate havePassedAtLeastOnce
 		for _, bridge := range data.res.Bridges {
-			if bridge.Code == codeOK {
+			if bridge.Code == CodeOK {
 				havePassedAtLeastOnce[bridge.ClientID] = struct{}{}
 			}
 		}
