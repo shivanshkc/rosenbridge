@@ -15,8 +15,10 @@ import (
 var OwnDiscoveryAddr string
 
 var (
-	BridgeManager  bridgeManager
-	BridgeDatabase bridgeDatabase
+	BridgeManager   bridgeManager
+	BridgeDatabase  bridgeDatabase
+	ClusterComm     clusterComm
+	MessageDatabase messageDatabase
 )
 
 // CreateBridgeParams are the params required by the CreateBridge function.

@@ -24,6 +24,7 @@ linters:
     - lll
     - maligned
     - nlreturn
+    - paralleltest
     - scopelint
     - tagliatelle
     - varnamelen
