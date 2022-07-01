@@ -16,7 +16,7 @@ func TestCreateBridge(t *testing.T) {
 	// Dummy context.
 	ctx := context.Background()
 	// Setting the discovery address. It is a dependency of the core.
-	core.OwnDiscoveryAddr = mockOwnDiscoveryAddr
+	core.DM.SetOwnDiscoveryAddr(mockNodeAddr1)
 
 	// Creating mock errors.
 	errInsertBridge := errors.New("mock insert bridge error")
@@ -51,8 +51,8 @@ func TestCreateBridge(t *testing.T) {
 	// Executing tests.
 	for _, testCase := range testCases {
 		// Setting core dependencies.
-		core.BridgeManager = testCase.bridgeManager
-		core.BridgeDatabase = testCase.bridgeDatabase
+		core.DM.SetBridgeManager(testCase.bridgeManager)
+		core.DM.SetBridgeDatabase(testCase.bridgeDatabase)
 
 		// Calling the function to be tested.
 		if _, err := core.CreateBridge(ctx, getCreateBridgeParams()); !errors.Is(err, testCase.errExpected) {
@@ -67,10 +67,13 @@ func TestCreateBridge_BridgeCloseHandler(t *testing.T) {
 	// Dummy context.
 	ctx := context.Background()
 	// Setting the discovery address. It is a dependency of the core.
-	core.OwnDiscoveryAddr = mockOwnDiscoveryAddr
+	core.DM.SetOwnDiscoveryAddr(mockNodeAddr1)
+	// Defining core dependencies.
+	mockBridgeMg := (&mockBridgeManager{}).init()
+	mockBridgeDB := (&mockBridgeDatabase{}).init()
 	// Setting core dependencies.
-	core.BridgeManager = (&mockBridgeManager{}).init()
-	core.BridgeDatabase = (&mockBridgeDatabase{}).init()
+	core.DM.SetBridgeManager(mockBridgeMg)
+	core.DM.SetBridgeDatabase(mockBridgeDB)
 
 	// Calling the function to be tested.
 	bridge, err := core.CreateBridge(ctx, getCreateBridgeParams())
@@ -92,15 +95,15 @@ func TestCreateBridge_BridgeCloseHandler(t *testing.T) {
 	mockBridge.closeHandler(nil)
 
 	// Verifying if the bridge is deleted from the manager.
-	if bridgeInManager := core.BridgeManager.GetBridge(ctx, bIdentity); bridgeInManager != nil {
+	if bridgeInManager := mockBridgeMg.GetBridge(ctx, bIdentity); bridgeInManager != nil {
 		t.Errorf("expected bridge to be: %+v, but got: %+v", nil, bridge)
 		return
 	}
 
 	// Verifying if the bridge is deleted from the database.
-	bridgesInDB, errDB := core.BridgeDatabase.GetBridgesForClients(ctx, []string{mockClientID})
+	bridgesInDB, errDB := mockBridgeDB.GetBridgesForClients(ctx, []string{mockClientID})
 	if errDB != nil {
-		t.Errorf("expected err to be: %+v, but got: %+v", nil, err)
+		t.Errorf("expected errInsert to be: %+v, but got: %+v", nil, err)
 		return
 	}
 
@@ -118,10 +121,13 @@ func TestCreateBridge_BridgeErrorHandler(t *testing.T) {
 	// Dummy context.
 	ctx := context.Background()
 	// Setting the discovery address. It is a dependency of the core.
-	core.OwnDiscoveryAddr = mockOwnDiscoveryAddr
+	core.DM.SetOwnDiscoveryAddr(mockNodeAddr1)
+	// Defining core dependencies.
+	mockBridgeMg := (&mockBridgeManager{}).init()
+	mockBridgeDB := (&mockBridgeDatabase{}).init()
 	// Setting core dependencies.
-	core.BridgeManager = (&mockBridgeManager{}).init()
-	core.BridgeDatabase = (&mockBridgeDatabase{}).init()
+	core.DM.SetBridgeManager(mockBridgeMg)
+	core.DM.SetBridgeDatabase(mockBridgeDB)
 
 	// Calling the function to be tested.
 	bridge, err := core.CreateBridge(ctx, getCreateBridgeParams())

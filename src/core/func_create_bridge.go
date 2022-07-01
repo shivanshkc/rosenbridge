@@ -11,16 +11,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// OwnDiscoveryAddr is the address of this node that other nodes in the cluster can use to reach it.
-var OwnDiscoveryAddr string
-
-var (
-	BridgeManager   bridgeManager
-	BridgeDatabase  bridgeDatabase
-	ClusterComm     clusterComm
-	MessageDatabase messageDatabase
-)
-
 // CreateBridgeParams are the params required by the CreateBridge function.
 type CreateBridgeParams struct {
 	// ClientID is the ID of the client who is requesting a new bridge.
@@ -39,6 +29,9 @@ type CreateBridgeParams struct {
 
 // CreateBridge is the core functionality to create a new bridge.
 func CreateBridge(ctx context.Context, params *CreateBridgeParams) (Bridge, error) {
+	// Dependencies.
+	ownDiscoveryAddr, bridgeDB, bridgeMg := DM.getOwnDiscoveryAddr(), DM.getBridgeDatabase(), DM.getBridgeManager()
+
 	// Generating a new bridge identity.
 	bridgeIdentity := &BridgeIdentity{ClientID: params.ClientID, BridgeID: uuid.NewString()}
 
@@ -46,13 +39,13 @@ func CreateBridge(ctx context.Context, params *CreateBridgeParams) (Bridge, erro
 	bridgeDoc := &BridgeDatabaseDoc{
 		ClientID:    bridgeIdentity.ClientID,
 		BridgeID:    bridgeIdentity.BridgeID,
-		NodeAddr:    OwnDiscoveryAddr,
+		NodeAddr:    ownDiscoveryAddr,
 		ConnectedAt: time.Now().Unix(),
 	}
 
 	// Inserting the bridge into the database.
-	if err := BridgeDatabase.InsertBridge(ctx, bridgeDoc); err != nil {
-		return nil, fmt.Errorf("error in BridgeDatabase.InsertBridge call: %w", err)
+	if err := bridgeDB.InsertBridge(ctx, bridgeDoc); err != nil {
+		return nil, fmt.Errorf("error in bridgeDB.InsertBridge call: %w", err)
 	}
 
 	// Notice that we put the bridge document in the database before actually creating the bridge.
@@ -72,23 +65,23 @@ func CreateBridge(ctx context.Context, params *CreateBridgeParams) (Bridge, erro
 	}
 
 	// Creating a new bridge.
-	bridge, err := BridgeManager.CreateBridge(ctx, bridgeCreateInput)
+	bridge, err := bridgeMg.CreateBridge(ctx, bridgeCreateInput)
 	if err != nil {
 		// If the bridge creation fails, we asynchronously attempt to remove the earlier created db record.
 		// Even if this request fails, the system will eventually identify the stale record and remove it.
-		go func() { _ = BridgeDatabase.DeleteBridgeForNode(ctx, bridgeIdentity, OwnDiscoveryAddr) }()
+		go func() { _ = bridgeDB.DeleteBridgeForNode(ctx, bridgeIdentity, ownDiscoveryAddr) }()
 		// Error-ing out.
-		return nil, fmt.Errorf("error in BridgeManager.CreateBridge call: %w", err)
+		return nil, fmt.Errorf("error in bridgeMg.CreateBridge call: %w", err)
 	}
 
 	// It is the core's responsibility to handle bridge closures.
 	bridge.SetCloseHandler(func(err error) {
 		ctx := context.Background()
 		// Removing the bridge from the bridge manager.
-		BridgeManager.DeleteBridge(ctx, bridgeIdentity)
+		bridgeMg.DeleteBridge(ctx, bridgeIdentity)
 		// Removing the bridge entry from the database.
 		// TODO: Log the error without importing the src/logger dependency.
-		_ = BridgeDatabase.DeleteBridgeForNode(ctx, bridgeIdentity, OwnDiscoveryAddr)
+		_ = bridgeDB.DeleteBridgeForNode(ctx, bridgeIdentity, ownDiscoveryAddr)
 	})
 
 	// It is the core's responsibility to handle bridge errors.

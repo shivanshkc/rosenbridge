@@ -29,4 +29,7 @@ const (
 	CodeOffline = "OFFLINE"
 	// CodeBridgeNotFound is the failure code when the intended bridge cannot be located.
 	CodeBridgeNotFound = "BRIDGE_NOT_FOUND"
+
+	// ReasonOffline is the failure reason when a receiver is offline.
+	ReasonOffline = "receiver is offline"
 )

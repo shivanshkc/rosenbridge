@@ -21,7 +21,11 @@ type PostMessageParams struct {
 
 // PostMessage is the core functionality to send a new message.
 func PostMessage(ctx context.Context, params *PostMessageParams) (*OutgoingMessageRes, error) {
-	bridgeDocs, err := BridgeDatabase.GetBridgesForClients(ctx, params.ReceiverIDs)
+	// Dependencies.
+	ownDiscoveryAddr, bridgeDB, clComm, messageDB := DM.getOwnDiscoveryAddr(), DM.getBridgeDatabase(), DM.getClusterComm(), DM.getMessageDatabase()
+
+	// Getting bridge records for all receivers.
+	bridgeDocs, err := bridgeDB.GetBridgesForClients(ctx, params.ReceiverIDs)
 	if err != nil {
 		return nil, fmt.Errorf("error in BridgeDatabase.GetBridgesForClients call: %w", err)
 	}
@@ -39,7 +43,7 @@ func PostMessage(ctx context.Context, params *PostMessageParams) (*OutgoingMessa
 	for _, offlineClient := range offlineClients {
 		bridgeStatuses = append(bridgeStatuses, &BridgeStatus{
 			BridgeIdentity: &BridgeIdentity{ClientID: offlineClient},
-			CodeAndReason:  &CodeAndReason{Code: CodeOffline, Reason: "receiver is offline"},
+			CodeAndReason:  &CodeAndReason{Code: CodeOffline, Reason: ReasonOffline},
 		})
 	}
 
@@ -57,11 +61,11 @@ func PostMessage(ctx context.Context, params *PostMessageParams) (*OutgoingMessa
 
 			switch nodeAddr {
 			// If the node address is this node's own, the PostMessageInternal method can be invoked directly.
-			case OwnDiscoveryAddr:
+			case ownDiscoveryAddr:
 				response, err = PostMessageInternal(ctx, request)
 			// If the node address is of another node, a network request is sent to it.
 			default:
-				response, err = ClusterComm.PostMessageInternal(ctx, nodeAddr, request)
+				response, err = clComm.PostMessageInternal(ctx, nodeAddr, request)
 			}
 			// Putting the results into the channel.
 			clusterCallDataChan <- &clusterCallData{req: request, res: response, err: err}
@@ -101,6 +105,11 @@ func PostMessage(ctx context.Context, params *PostMessageParams) (*OutgoingMessa
 		clientsForPersistence = neverPassed
 	}
 
+	// If no clients are eligible for message persistence, we return right away.
+	if len(clientsForPersistence) == 0 {
+		return finalResponse, nil
+	}
+
 	// The message that will be persisted.
 	messageDoc := &MessageDatabaseDoc{
 		RequestID:   params.RequestID,
@@ -111,7 +120,7 @@ func PostMessage(ctx context.Context, params *PostMessageParams) (*OutgoingMessa
 	}
 
 	// Persisting the message.
-	if err := MessageDatabase.InsertMessage(ctx, messageDoc); err != nil {
+	if err := messageDB.InsertMessage(ctx, messageDoc); err != nil {
 		err := errutils.ToHTTPError(err)
 		// Updating the persistence code and reason upon failure.
 		finalResponse.Persistence = &CodeAndReason{Code: err.Code, Reason: err.Reason}
