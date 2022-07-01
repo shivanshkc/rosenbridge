@@ -22,6 +22,24 @@ func (m *mockBridgeManager) init() *mockBridgeManager {
 	return m
 }
 
+// withBridges is a chainable method to conveniently populate the manager with bridges.
+func (m *mockBridgeManager) withBridges(bridges ...core.Bridge) *mockBridgeManager {
+	m.init()
+	// Looping over each bridge to add them to the storage.
+	for _, bridge := range bridges {
+		// Getting the identity.
+		identity := bridge.Identify()
+		// Updating/Creating data into the map.
+		bridgesForClient, exists := m.bridges[identity.ClientID]
+		if !exists {
+			bridgesForClient = map[string]core.Bridge{}
+		}
+		bridgesForClient[identity.BridgeID] = bridge
+		m.bridges[identity.ClientID] = bridgesForClient
+	}
+	return m
+}
+
 func (m *mockBridgeManager) CreateBridge(ctx context.Context, params *core.BridgeManagerCreateParams,
 ) (core.Bridge, error) {
 	// Checking if an error is supposed to be returned.

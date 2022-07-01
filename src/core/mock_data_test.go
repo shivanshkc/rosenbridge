@@ -29,6 +29,7 @@ var (
 type mockBridgeInfo struct {
 	identity    *core.BridgeIdentity
 	databaseDoc *core.BridgeDatabaseDoc
+	bridge      core.Bridge
 }
 
 var (
@@ -43,6 +44,10 @@ var (
 			NodeAddr:    mockNodeAddr1,
 			ConnectedAt: 0,
 		},
+		bridge: (&mockBridge{identity: &core.BridgeIdentity{
+			ClientID: _mockBridge1Rec,
+			BridgeID: _mockBridge1ID,
+		}}).init(),
 	}
 
 	_mockBridge2Rec = "kenobi"
@@ -56,6 +61,10 @@ var (
 			NodeAddr:    mockNodeAddr2,
 			ConnectedAt: 0,
 		},
+		bridge: (&mockBridge{identity: &core.BridgeIdentity{
+			ClientID: _mockBridge2Rec,
+			BridgeID: _mockBridge2ID,
+		}}).init(),
 	}
 
 	_mockBridge3Rec = "quigon"
@@ -69,6 +78,10 @@ var (
 			NodeAddr:    mockNodeAddr3,
 			ConnectedAt: 0,
 		},
+		bridge: (&mockBridge{identity: &core.BridgeIdentity{
+			ClientID: _mockBridge3Rec,
+			BridgeID: _mockBridge3ID,
+		}}).init(),
 	}
 
 	mockBridgeInfo3Offline = &mockBridgeInfo{
@@ -79,6 +92,10 @@ var (
 			NodeAddr:    mockNodeAddr3,
 			ConnectedAt: 0,
 		},
+		bridge: (&mockBridge{identity: &core.BridgeIdentity{
+			ClientID: _mockBridge3Rec,
+			BridgeID: _mockBridge3ID,
+		}}).init(),
 	}
 
 	_mockBridge3AbsentID = uuid.NewString()
@@ -91,6 +108,10 @@ var (
 			NodeAddr:    mockNodeAddr3,
 			ConnectedAt: 0,
 		},
+		bridge: (&mockBridge{identity: &core.BridgeIdentity{
+			ClientID: _mockBridge3Rec,
+			BridgeID: _mockBridge3ID,
+		}}).init(),
 	}
 )
 

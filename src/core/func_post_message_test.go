@@ -24,13 +24,14 @@ func TestPostMessage(t *testing.T) {
 	errInternal := errutils.InternalServerError()
 
 	// Mocking the own discovery address.
-	core.DM.SetOwnDiscoveryAddr("todo")
+	core.DM.SetOwnDiscoveryAddr(mockNodeAddr1)
 
 	// Test table.
 	testCases := []struct {
 		// Detailed description of the test.
 		description string
 		// Dependencies.
+		bridgeManager   *mockBridgeManager   // Mocked bridge manager.
 		bridgeDatabase  *mockBridgeDatabase  // Mocked bridge database.
 		clusterComm     *mockClusterComm     // Mocked cluster comm.
 		messageDatabase *mockMessageDatabase // Mocked message database.
@@ -57,6 +58,7 @@ func TestPostMessage(t *testing.T) {
 * Expecting code OK for all bridges.
 * Expecting a message to be persisted for all receivers.
 `,
+			bridgeManager: (&mockBridgeManager{}).withBridges(mockBridgeInfo1.bridge),
 			bridgeDatabase: (&mockBridgeDatabase{}).withDocs(
 				mockBridgeInfo1.databaseDoc,
 				mockBridgeInfo2.databaseDoc,
@@ -115,6 +117,7 @@ func TestPostMessage(t *testing.T) {
 * Expecting code OK for all bridges.
 * Expecting no message to be persisted.
 `,
+			bridgeManager: (&mockBridgeManager{}).withBridges(mockBridgeInfo1.bridge),
 			bridgeDatabase: (&mockBridgeDatabase{}).withDocs(
 				mockBridgeInfo1.databaseDoc,
 				mockBridgeInfo2.databaseDoc,
@@ -163,6 +166,7 @@ func TestPostMessage(t *testing.T) {
 * Expecting code OFFLINE for one bridge. All other bridges should have code OK.
 * Expecting a message to be persisted for the offline receiver.
 `,
+			bridgeManager: (&mockBridgeManager{}).withBridges(mockBridgeInfo1.bridge),
 			bridgeDatabase: (&mockBridgeDatabase{}).withDocs(
 				mockBridgeInfo1.databaseDoc,
 				mockBridgeInfo2.databaseDoc,
@@ -217,6 +221,7 @@ func TestPostMessage(t *testing.T) {
 * Expecting code BRIDGE_NOT_FOUND for one bridge. All other bridges should have code OK.
 * Expecting no messages to be persisted.
 `,
+			bridgeManager: (&mockBridgeManager{}).withBridges(mockBridgeInfo1.bridge),
 			bridgeDatabase: (&mockBridgeDatabase{}).withDocs(
 				mockBridgeInfo1.databaseDoc,
 				mockBridgeInfo2.databaseDoc,
@@ -268,6 +273,7 @@ func TestPostMessage(t *testing.T) {
 * Expecting nil output.
 * Expecting no messages to be persisted.
 `,
+			bridgeManager:  (&mockBridgeManager{}).withBridges(mockBridgeInfo1.bridge),
 			bridgeDatabase: (&mockBridgeDatabase{errGetBridgeForClients: errMockBridgeDB}).init(),
 			// Marking the last bridge as absent in clusterComm.
 			clusterComm:     (&mockClusterComm{}).init(),
@@ -306,6 +312,7 @@ func TestPostMessage(t *testing.T) {
 * Expecting persistence response code to be internal server error code.
 * Expecting no messages to be persisted.
 `,
+			bridgeManager: (&mockBridgeManager{}).withBridges(mockBridgeInfo1.bridge),
 			bridgeDatabase: (&mockBridgeDatabase{}).withDocs(
 				mockBridgeInfo1.databaseDoc,
 				mockBridgeInfo2.databaseDoc,
@@ -354,6 +361,7 @@ func TestPostMessage(t *testing.T) {
 * Expecting code internal server error for the bridges belonging to the disputed node.
 * Expecting a message to be persisted for the client who was only connected to the disputed node.
 `,
+			bridgeManager: (&mockBridgeManager{}).withBridges(mockBridgeInfo1.bridge),
 			bridgeDatabase: (&mockBridgeDatabase{}).withDocs(
 				mockBridgeInfo1.databaseDoc,
 				mockBridgeInfo2.databaseDoc,
@@ -410,6 +418,7 @@ func TestPostMessage(t *testing.T) {
 * Expecting code internal server error for all the bridges of the disputed node.
 * Expecting a message to be persisted for the client who was only connected through the disputed bridges.
 `,
+			bridgeManager: (&mockBridgeManager{}).withBridges(mockBridgeInfo1.bridge),
 			bridgeDatabase: (&mockBridgeDatabase{}).withDocs(
 				mockBridgeInfo1.databaseDoc,
 				mockBridgeInfo2.databaseDoc,
@@ -455,6 +464,7 @@ func TestPostMessage(t *testing.T) {
 	// Executing tests.
 	for _, testCase := range testCases {
 		// Setting the mock dependencies.
+		core.DM.SetBridgeManager(testCase.bridgeManager)
 		core.DM.SetBridgeDatabase(testCase.bridgeDatabase)
 		core.DM.SetClusterComm(testCase.clusterComm)
 		core.DM.SetMessageDatabase(testCase.messageDatabase)
