@@ -17,8 +17,8 @@ func TestPostMessage(t *testing.T) {
 
 	// Taking variables for re-usability.
 	okCodeAndReason := &core.CodeAndReason{Code: core.CodeOK}
-	offlineCodeAndReason := &core.CodeAndReason{Code: core.CodeOffline, Reason: core.ReasonOffline}
-	notFoundCodeAndReason := &core.CodeAndReason{Code: core.CodeBridgeNotFound, Reason: ""}
+	offlineCodeAndReason := &core.CodeAndReason{Code: core.CodeOffline}
+	notFoundCodeAndReason := &core.CodeAndReason{Code: core.CodeBridgeNotFound}
 
 	// Internal server error shorthand.
 	errInternal := errutils.InternalServerError()

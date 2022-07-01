@@ -43,7 +43,7 @@ func PostMessage(ctx context.Context, params *PostMessageParams) (*OutgoingMessa
 	for _, offlineClient := range offlineClients {
 		bridgeStatuses = append(bridgeStatuses, &BridgeStatus{
 			BridgeIdentity: &BridgeIdentity{ClientID: offlineClient},
-			CodeAndReason:  &CodeAndReason{Code: CodeOffline, Reason: ReasonOffline},
+			CodeAndReason:  &CodeAndReason{Code: CodeOffline},
 		})
 	}
 

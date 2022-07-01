@@ -24,3 +24,14 @@ type OutgoingMessageRes struct {
 	// Bridges is the list of statuses of all bridges that were triggered as part of the request.
 	Bridges []*BridgeStatus `json:"bridges"`
 }
+
+// IncomingMessageReq represents an incoming message for a client.
+// It is called "incoming message request" because the naming is done from the client's perspective.
+type IncomingMessageReq struct {
+	// SenderID is the ID of the client who sent the message.
+	SenderID string `json:"sender_id"`
+	// Message is the main message content.
+	Message string `json:"message"`
+	// Persist is the persistence criteria of the message.
+	Persist string `json:"persist"`
+}
