@@ -62,6 +62,9 @@ func getRouter() http.Handler {
 	externalRouter.HandleFunc("/message", nil).
 		Methods(http.MethodPost, http.MethodOptions)
 
+	externalRouter.HandleFunc("/message/persisted", nil).
+		Methods(http.MethodGet, http.MethodOptions)
+
 	internalRouter.HandleFunc("/message", nil).
 		Methods(http.MethodPost, http.MethodOptions)
 

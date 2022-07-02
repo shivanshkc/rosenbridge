@@ -32,3 +32,12 @@ func (m *mockMessageDatabase) InsertMessage(ctx context.Context, message *core.M
 	m.messages[message.RequestID] = message
 	return nil
 }
+
+func (m *mockMessageDatabase) ListMessages(ctx context.Context, clientID string, limit, skip int,
+) ([]*core.MessageDatabaseDoc, int, error) {
+	panic("implement me")
+}
+
+func (m *mockMessageDatabase) DeleteMessagesWithID(ctx context.Context, requestIDs []string) error {
+	panic("implement me")
+}

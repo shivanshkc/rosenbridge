@@ -8,6 +8,10 @@ import (
 type messageDatabase interface {
 	// InsertMessage inserts a new message in the database.
 	InsertMessage(ctx context.Context, message *MessageDatabaseDoc) error
+	// ListMessages lists the persisted messages for the provided client and pagination.
+	ListMessages(ctx context.Context, clientID string, limit, skip int) ([]*MessageDatabaseDoc, int, error)
+	// DeleteMessagesWithID deletes all messages matching any of the provided request IDs.
+	DeleteMessagesWithID(ctx context.Context, requestIDs []string) error
 }
 
 // MessageDatabaseDoc represents a persisted message in the database collection/table.
