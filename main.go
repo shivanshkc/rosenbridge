@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/shivanshkc/rosenbridge/src/bridges"
+	"github.com/shivanshkc/rosenbridge/src/cluster"
 	"github.com/shivanshkc/rosenbridge/src/configs"
 	"github.com/shivanshkc/rosenbridge/src/core"
 	"github.com/shivanshkc/rosenbridge/src/logger"
@@ -29,7 +30,7 @@ func main() {
 	// Providing the required dependencies to the core.
 	core.DM.SetBridgeManager(bridges.NewManager())
 	core.DM.SetBridgeDatabase(bridgeDB)
-	core.DM.SetClusterComm(nil)
+	core.DM.SetClusterComm(cluster.NewComm())
 	core.DM.SetMessageDatabase(messagesDB)
 
 	// Creating database indexes. This also initiates a connection with the database upon application startup.
