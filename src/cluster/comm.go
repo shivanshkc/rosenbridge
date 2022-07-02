@@ -59,6 +59,9 @@ func (c *Comm) PostMessageInternal(ctx context.Context, nodeAddr string, input *
 	if err != nil {
 		return nil, fmt.Errorf("error in http.NewRequestWithContext call: %w", err)
 	}
+	// Adding the required headers.
+	request.Header.Set("x-request-id", input.RequestID)
+	request.Header.Set("x-client-id", input.ClientID)
 	// Setting the cluster basic auth params.
 	request.SetBasicAuth(conf.Auth.ClusterUsername, conf.Auth.ClusterPassword)
 
