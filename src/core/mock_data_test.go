@@ -50,6 +50,15 @@ var (
 		}}).init(),
 	}
 
+	mockBridgeInfo1ErrBridge = &mockBridgeInfo{
+		identity:    mockBridgeInfo1.identity,
+		databaseDoc: mockBridgeInfo1.databaseDoc,
+		bridge: (&mockBridge{identity: &core.BridgeIdentity{
+			ClientID: _mockBridge1Rec,
+			BridgeID: _mockBridge1ID,
+		}}).withErrSendMessage(errMockBridge),
+	}
+
 	_mockBridge2Rec = "kenobi"
 	_mockBridge2ID  = uuid.NewString()
 
@@ -119,4 +128,5 @@ var (
 	errMockBridgeDB    = errors.New("mock bridge error")
 	errMockMessageDB   = errors.New("mock message error")
 	errMockClusterComm = errors.New("mock cluster comm error")
+	errMockBridge      = errors.New("mock bridge error")
 )

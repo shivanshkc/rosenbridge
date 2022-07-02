@@ -154,7 +154,7 @@ func TestCreateBridge_BridgeErrorHandler(t *testing.T) {
 	}
 
 	// Verifying if the message sent consists of the intended error.
-	for sent := range mockBridge.sentMessages {
+	for _, sent := range mockBridge.sentMessages {
 		// Expecting the body of the message to be of CodeAndReason type.
 		codeAndReason, asserted := sent.Body.(*core.CodeAndReason)
 		if !asserted {

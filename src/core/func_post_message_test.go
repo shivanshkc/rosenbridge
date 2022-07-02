@@ -478,7 +478,7 @@ func TestPostMessage(t *testing.T) {
 		}
 
 		// Verifying the output.
-		if err := checkExpectedOutput(testCase.expectedOutput, response); err != nil {
+		if err := checkExpectedOutgoingMessageRes(testCase.expectedOutput, response); err != nil {
 			t.Errorf(err.Error())
 			return
 		}
@@ -493,8 +493,8 @@ func TestPostMessage(t *testing.T) {
 	}
 }
 
-// checkExpectedOutput verifies if the two outputs match each other.
-func checkExpectedOutput(expected *core.OutgoingMessageRes, actual *core.OutgoingMessageRes) error {
+// checkExpectedOutgoingMessageRes verifies if the two outputs match each other.
+func checkExpectedOutgoingMessageRes(expected *core.OutgoingMessageRes, actual *core.OutgoingMessageRes) error {
 	// If both nil, return.
 	if expected == nil && actual == nil {
 		return nil

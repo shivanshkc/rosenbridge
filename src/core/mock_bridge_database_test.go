@@ -18,6 +18,8 @@ type mockBridgeDatabase struct {
 	bridges map[string][]*core.BridgeDatabaseDoc
 	// bridgesMutex ensures thread-safety for bridges.
 	bridgesMutex *sync.RWMutex
+	// deleteBridgesForNodeChan receives a signal whenever a DeleteBridgesForNode call completes.
+	deleteBridgesForNodeChan chan struct{}
 }
 
 // init sets the required fields of the mockBridgeManager.
@@ -31,6 +33,9 @@ func (m *mockBridgeDatabase) init() *mockBridgeDatabase {
 
 	if m.bridges == nil {
 		m.bridges = map[string][]*core.BridgeDatabaseDoc{}
+	}
+	if m.deleteBridgesForNodeChan == nil {
+		m.deleteBridgesForNodeChan = make(chan struct{})
 	}
 	return m
 }
@@ -49,6 +54,32 @@ func (m *mockBridgeDatabase) withDocs(docs ...*core.BridgeDatabaseDoc) *mockBrid
 		m.bridges[doc.ClientID] = append(m.bridges[doc.ClientID], doc)
 	}
 	return m
+}
+
+// containsAnyBridgeIdentity checks if any bridge in the storage matches any of the provided bridge identities.
+func (m *mockBridgeDatabase) containsAnyBridgeIdentity(bridgeIdentities []*core.BridgeIdentity) bool {
+	m.init()
+
+	// Locking for read operations.
+	m.bridgesMutex.RLock()
+	defer m.bridgesMutex.RUnlock()
+
+	// Looping over all identities to locate the required one.
+	for _, bIdentity := range bridgeIdentities {
+		// Fetching bridges for the client.
+		bridges, exists := m.bridges[bIdentity.ClientID]
+		// If no brides exist for the client, we can continue.
+		if !exists {
+			continue
+		}
+		// Scanning all bridges for the client to see if any match the required bridge ID.
+		for _, bridge := range bridges {
+			if bridge.BridgeID == bIdentity.BridgeID {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func (m *mockBridgeDatabase) InsertBridge(ctx context.Context, doc *core.BridgeDatabaseDoc) error {
@@ -118,5 +149,8 @@ func (m *mockBridgeDatabase) DeleteBridgesForNode(ctx context.Context, bridges [
 			return err
 		}
 	}
+	// This is required because this method (DeleteBridgesForNode) is called in a goroutine at one/some place(s).
+	// So, this channel can be used to get notified about the completion of the call.
+	m.deleteBridgesForNodeChan <- struct{}{}
 	return nil
 }

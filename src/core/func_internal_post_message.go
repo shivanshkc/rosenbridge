@@ -33,7 +33,7 @@ func PostMessageInternal(ctx context.Context, params *PostMessageInternalParams)
 	// The response that will be finally sent.
 	response := &OutgoingMessageRes{
 		CodeAndReason: &CodeAndReason{Code: CodeOK},
-		Persistence:   nil, // This field does not server any purpose here.
+		Persistence:   nil, // This field does not serve any purpose here.
 		Bridges:       nil,
 	}
 
