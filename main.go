@@ -9,6 +9,7 @@ import (
 	"github.com/shivanshkc/rosenbridge/src/cluster"
 	"github.com/shivanshkc/rosenbridge/src/configs"
 	"github.com/shivanshkc/rosenbridge/src/core"
+	"github.com/shivanshkc/rosenbridge/src/handlers"
 	"github.com/shivanshkc/rosenbridge/src/logger"
 	"github.com/shivanshkc/rosenbridge/src/messages"
 	"github.com/shivanshkc/rosenbridge/src/middlewares"
@@ -95,10 +96,10 @@ func getRouter() http.Handler {
 	// Internal routes require basic auth.
 	internalRouter.Use(middlewares.InternalBasicAuth)
 
-	externalRouter.HandleFunc("/", nil).
+	externalRouter.HandleFunc("", handlers.BasicHandler).
 		Methods(http.MethodGet, http.MethodOptions)
 
-	externalRouter.HandleFunc("/bridge", nil).
+	externalRouter.HandleFunc("/bridge", handlers.GetBridgeHandler).
 		Methods(http.MethodGet, http.MethodOptions)
 
 	externalRouter.HandleFunc("/message", nil).

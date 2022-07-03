@@ -8,11 +8,17 @@ type Model struct {
 		Name string `mapstructure:"name"`
 		// Version of the application.
 		Version string `mapstructure:"version"`
+		// BridgeLimitPerClient is the max number of bridges a client can have per node.
+		BridgeLimitPerClient int `mapstructure:"bridge_limit_per_client"`
+		// BridgeLimitTotal is the max number of bridges a node can host.
+		BridgeLimitTotal int `mapstructure:"bridge_limit_total"`
 	} `mapstructure:"application"`
 
 	// Auth is the model of authentication configs.
 	Auth struct {
+		// ClusterUsername is the username for internal basic auth.
 		ClusterUsername string `mapstructure:"cluster_username"`
+		// ClusterPassword is the password for internal basic auth.
 		ClusterPassword string `mapstructure:"cluster_password"`
 	} `mapstructure:"auth"`
 

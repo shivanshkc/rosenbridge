@@ -2,6 +2,8 @@
 application:
   name: rosenbridge
   version: 0.0.0
+  bridge_limit_per_client: 10
+  bridge_limit_total: 100000
 
 auth:
   cluster_username: dev
