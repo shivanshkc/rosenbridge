@@ -102,7 +102,7 @@ func getRouter() http.Handler {
 	externalRouter.HandleFunc("/bridge", handlers.GetBridgeHandler).
 		Methods(http.MethodGet, http.MethodOptions)
 
-	externalRouter.HandleFunc("/message", nil).
+	externalRouter.HandleFunc("/message", handlers.PostMessageHandler).
 		Methods(http.MethodPost, http.MethodOptions)
 
 	externalRouter.HandleFunc("/message/persisted", nil).

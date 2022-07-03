@@ -10,8 +10,6 @@ import (
 	"github.com/shivanshkc/rosenbridge/src/logger"
 	"github.com/shivanshkc/rosenbridge/src/utils/errutils"
 	"github.com/shivanshkc/rosenbridge/src/utils/httputils"
-
-	"github.com/gorilla/mux"
 )
 
 // GetBridgeHandler serves the "Get Bridge" API of Rosenbridge.
@@ -20,7 +18,7 @@ func GetBridgeHandler(writer http.ResponseWriter, req *http.Request) {
 	ctx, conf, log := req.Context(), configs.Get(), logger.Get()
 
 	// Reading and validating client ID.
-	clientID := mux.Vars(req)["client_id"]
+	clientID := req.Header.Get("x-client-id")
 	if err := checkClientID(clientID); err != nil {
 		httputils.WriteErrAndLog(ctx, writer, errutils.BadRequest().WithReasonError(err), log)
 		return
