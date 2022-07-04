@@ -16,7 +16,8 @@ const (
 
 // Validation params that can't be Go constants.
 var (
-	clientIDRegexp = regexp.MustCompile("^[a-zA-Z0-9-@._]*$")
+	// TODO: Use a stricter regex.
+	clientIDRegexp = regexp.MustCompile(".*")
 )
 
 // All validation errors.
