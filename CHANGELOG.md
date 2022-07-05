@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/shivanshkc/rosenbridge/compare/v1.0.0...v1.0.1) (2022-07-05)
+
+
+### Bug Fixes
+
+* **core:** attach post message internal handler ([5775902](https://github.com/shivanshkc/rosenbridge/commit/577590214957d57918c0e9e1a309c41a3c7d2641))
+
 # [1.0.0](https://github.com/shivanshkc/rosenbridge/compare/v0.1.0...v1.0.0) (2022-07-05)
 
 
