@@ -4,9 +4,7 @@ import (
 	"context"
 )
 
-const (
-	requestContextKey contextKey = iota
-)
+const requestContextKey contextKey = iota
 
 // PutRequestContextData puts the request's context data into the target context and returns the new context.
 func PutRequestContextData(targetCtx context.Context, data *RequestContextData) context.Context {

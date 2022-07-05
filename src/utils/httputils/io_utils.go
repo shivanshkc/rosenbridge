@@ -19,14 +19,6 @@ type ResponseDTO struct {
 	Body    interface{}
 }
 
-// ResponseBodyDTO is the schema for all response bodies.
-type ResponseBodyDTO struct {
-	StatusCode int         `json:"status_code"`
-	CustomCode string      `json:"custom_code"`
-	Data       interface{} `json:"data"`
-	Errors     []string    `json:"errors"`
-}
-
 // Write writes the provided ResponseDTO as the HTTP response using the provided writer.
 func Write(writer http.ResponseWriter, response *ResponseDTO) error {
 	writer.Header().Set("content-type", "application/json")
@@ -67,7 +59,7 @@ func WriteAndLog(ctx context.Context, writer http.ResponseWriter, response *Resp
 // If write call fails, it does not return the error. Instead, it logs it using the provided logger.
 func WriteErrAndLog(ctx context.Context, writer http.ResponseWriter, err error, log logger.Logger) {
 	errHTTP := errutils.ToHTTPError(err)
-	response := &ResponseDTO{Status: errHTTP.StatusCode, Body: errHTTP}
+	response := &ResponseDTO{Status: errHTTP.Status, Body: errHTTP}
 	WriteAndLog(ctx, writer, response, log)
 }
 

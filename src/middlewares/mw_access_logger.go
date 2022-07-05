@@ -23,7 +23,7 @@ func AccessLogger(next http.Handler) http.Handler {
 		// An unlikely scenario, but no harm in checking.
 		if ctxData == nil {
 			log.Error(ctx, &logger.Entry{Payload: "No context data found for request"})
-			err := errutils.InternalServerError().AddMessages("no context found")
+			err := errutils.InternalServerError().WithReasonString("no context found")
 			httputils.WriteErrAndLog(ctx, writer, err, log)
 			return
 		}
