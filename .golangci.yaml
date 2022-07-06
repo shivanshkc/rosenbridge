@@ -8,24 +8,24 @@ linters:
   enable-all: true
   # Following linters are disabled.
   disable:
-    - cyclop
+#    - cyclop
     - exhaustivestruct
-    - exhaustruct
-    - forbidigo
-    - funlen
-    - gci
-    - gochecknoglobals
-    - godox
-    - goerr113
+#    - exhaustruct
+#    - forbidigo
+#    - funlen
+#    - gci
+#    - gochecknoglobals
+#    - godox
+#    - goerr113
     - golint
-    - gomnd
+#    - gomnd
     - interfacer
     - ireturn
-    - lll
+#    - lll
     - maligned
-    - nlreturn
-    - paralleltest
+#    - nlreturn
+#    - paralleltest
     - scopelint
     - tagliatelle
-    - varnamelen
-    - wsl
+#    - varnamelen
+#    - wsl

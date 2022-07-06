@@ -1,4 +1,4 @@
-package core
+package models
 
 // CodeAndReason represent the response of an operation.
 type CodeAndReason struct {

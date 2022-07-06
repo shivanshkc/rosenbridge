@@ -1,0 +1,31 @@
+package models
+
+// BridgeMessage is the general schema of all messages that are sent over a bridge.
+type BridgeMessage struct {
+	// Type of the message. It can be used to differentiate and route various kinds of messages.
+	Type string `json:"type"`
+	// RequestID is identifier of this request/message.
+	// It can be used to correlate this message to a parent message. For example, if this message is a response to an
+	// earlier request, it can be expected to have the same request ID as the request.
+	RequestID string `json:"request_id"`
+	// Body is the main content of this message.
+	Body interface{} `json:"body"`
+}
+
+// BridgeIdentityInfo encapsulates a bridge's identity related attributes.
+type BridgeIdentityInfo struct {
+	// ClientID is the ID of the client who owns this bridge.
+	ClientID string `json:"client_id"`
+	// BridgeID is the unique identity of this bridge. This is unique at cluster level.
+	BridgeID string `json:"bridge_id"`
+}
+
+// BridgeStatus tells about the status of an operation on a bridge. For example a SendMessage operation.
+//
+// It encapsulates the identity attributes of a bridge and the response code and reason.
+type BridgeStatus struct {
+	// Identity attributes of the bridge.
+	*BridgeIdentityInfo
+	// Response code and reason.
+	*CodeAndReason
+}
