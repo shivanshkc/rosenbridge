@@ -13,9 +13,9 @@ linters:
 #    - exhaustruct
 #    - forbidigo
 #    - funlen
-#    - gci
+    - gci
     - gochecknoglobals
-#    - godox
+    - godox
 #    - goerr113
     - golint
 #    - gomnd
