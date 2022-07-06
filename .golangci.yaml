@@ -14,7 +14,7 @@ linters:
 #    - forbidigo
 #    - funlen
 #    - gci
-#    - gochecknoglobals
+    - gochecknoglobals
 #    - godox
 #    - goerr113
     - golint

@@ -29,3 +29,16 @@ type BridgeStatus struct {
 	// Response code and reason.
 	*CodeAndReason
 }
+
+// BridgeDoc is the schema for the document of the bridge in the database.
+type BridgeDoc struct {
+	// ClientID is the ID of the client to which the bridge belongs.
+	ClientID string `json:"client_id" bson:"client_id"`
+	// BridgeID is unique ID for a bridge. It is unique at the cluster level.
+	BridgeID string `json:"bridge_id" bson:"bridge_id"`
+
+	// NodeAddr is the address of the node hosting the connection.
+	NodeAddr string `json:"node_addr" bson:"node_addr"`
+	// ConnectedAt is the time at which connection was established.
+	ConnectedAt int64 `json:"connected_at" bson:"connected_at"`
+}
