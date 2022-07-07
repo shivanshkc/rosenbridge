@@ -10,7 +10,7 @@ linters:
   disable:
 #    - cyclop
     - exhaustivestruct
-#    - exhaustruct
+    - exhaustruct
 #    - forbidigo
 #    - funlen
     - gci
@@ -24,7 +24,7 @@ linters:
 #    - lll
     - maligned
 #    - nlreturn
-#    - paralleltest
+    - paralleltest
     - scopelint
     - tagliatelle
 #    - varnamelen
