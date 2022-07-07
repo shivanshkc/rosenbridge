@@ -2,7 +2,10 @@ module github.com/shivanshkc/rosenbridge
 
 go 1.17
 
-require github.com/gorilla/mux v1.8.0
+require (
+	github.com/gorilla/mux v1.8.0
+	go.uber.org/zap v1.21.0
+)
 
 require (
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
@@ -14,6 +17,8 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	go.uber.org/atomic v1.9.0 // indirect
+	go.uber.org/multierr v1.8.0 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

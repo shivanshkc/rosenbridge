@@ -1,9 +1,10 @@
-package utils
+package httputils
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/shivanshkc/rosenbridge/src/utils/datautils"
 )
 
 // Write writes the provided data as the HTTP response using the provided writer.
@@ -16,7 +17,7 @@ func Write(writer http.ResponseWriter, status int, headers map[string]string, bo
 	}
 
 	// Converting the provided body to a byte slice for writing.
-	responseBytes, _ := AnyToBytes(body)
+	responseBytes, _ := datautils.AnyToBytes(body)
 	// Setting the content-length header.
 	writer.Header().Set("content-length", fmt.Sprintf("%d", len(responseBytes)))
 
@@ -24,24 +25,4 @@ func Write(writer http.ResponseWriter, status int, headers map[string]string, bo
 	writer.WriteHeader(status)
 	// Writing the body to the response.
 	_, _ = writer.Write(responseBytes)
-}
-
-// AnyToBytes converts the provided input to a byte slice.
-//
-// If the conversion is not possible, it returns a non-nil error.
-func AnyToBytes(input interface{}) ([]byte, error) {
-	switch asserted := input.(type) {
-	case []byte:
-		return asserted, nil
-	case string:
-		return []byte(asserted), nil
-	default:
-		// Marshalling to JSON. This works with all primitive data types and structs etc.
-		inputBytes, err := json.Marshal(input)
-		if err != nil {
-			return nil, fmt.Errorf("error in json.Marshal call: %w", err)
-		}
-		// Conversion successful.
-		return inputBytes, nil
-	}
 }

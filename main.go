@@ -1,18 +1,21 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/shivanshkc/rosenbridge/src/configs"
 	"github.com/shivanshkc/rosenbridge/src/core/deps"
 	"github.com/shivanshkc/rosenbridge/src/handlers"
+	"github.com/shivanshkc/rosenbridge/src/logger"
 
 	"github.com/gorilla/mux"
 )
 
 func main() {
 	// Prerequisites.
-	conf := configs.Get()
+	ctx, conf, log := context.Background(), configs.Get(), logger.Get()
 
 	// Setting core dependencies.
 	deps.DepManager.SetDiscoveryAddressResolver(nil)
@@ -20,7 +23,9 @@ func main() {
 	deps.DepManager.SetBridgeDatabase(nil)
 	deps.DepManager.SetIntercom(nil)
 
-	// TODO: Logger.
+	// Logging the HTTP server details.
+	log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("http server starting at: %s", conf.HTTPServer.Addr)})
+	// Starting the HTTP server.
 	if err := http.ListenAndServe(conf.HTTPServer.Addr, handler()); err != nil {
 		panic("failed to start http server:" + err.Error())
 	}
