@@ -1,0 +1,19 @@
+---
+application:
+  name: rosenbridge
+  version: 0.0.0
+
+auth:
+  internal_username: dev
+  internal_password: dev
+
+http_server:
+  addr: 0.0.0.0:8080
+
+logger:
+  level: info
+
+mongo:
+  addr: mongodb://dev:dev@localhost:27017/?retryWrites=true&w=majority
+  database_name: rosenbridge
+  operation_timeout_sec: 60

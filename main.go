@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"github.com/shivanshkc/rosenbridge/src/configs"
 	"github.com/shivanshkc/rosenbridge/src/core/deps"
 	"github.com/shivanshkc/rosenbridge/src/handlers"
 
@@ -10,15 +11,17 @@ import (
 )
 
 func main() {
+	// Prerequisites.
+	conf := configs.Get()
+
 	// Setting core dependencies.
 	deps.DepManager.SetDiscoveryAddressResolver(nil)
 	deps.DepManager.SetBridgeManager(nil)
 	deps.DepManager.SetBridgeDatabase(nil)
 	deps.DepManager.SetIntercom(nil)
 
-	// TODO: Config.
 	// TODO: Logger.
-	if err := http.ListenAndServe(":8080", handler()); err != nil {
+	if err := http.ListenAndServe(conf.HTTPServer.Addr, handler()); err != nil {
 		panic("failed to start http server:" + err.Error())
 	}
 }
