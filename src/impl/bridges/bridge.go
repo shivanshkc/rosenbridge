@@ -8,7 +8,9 @@ import (
 
 // BridgeWS implements the deps.Bridge interface using websockets.
 type BridgeWS struct {
-	identityInfo   *models.BridgeIdentityInfo
+	// identityInfo encapsulates the identity attributes of the bridge.
+	identityInfo *models.BridgeIdentityInfo
+	// underlyingConn is the low level connection object for the bridge.
 	underlyingConn *websocket.Conn
 }
 
