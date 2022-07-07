@@ -14,8 +14,6 @@ import (
 const (
 	// callerSkipParam is skip parameter required to obtain the correct caller details.
 	callerSkipParam = 3
-	// maxPathElements is the max number of path elements in the logged file name, in caller details.
-	maxPathElements = 2
 )
 
 // Entry is a loggable entry.
@@ -98,8 +96,8 @@ func getFormattedCaller(skip int) *Caller {
 
 	// Trimming the file name to at most 2 path elements.
 	pathElements := strings.Split(file, string(os.PathSeparator))
-	if len(pathElements) >= maxPathElements {
-		pathElements = pathElements[len(pathElements)-2:]
+	if len(pathElements) > 0 {
+		pathElements = pathElements[len(pathElements)-1:]
 	}
 	// Reassigning file with new path elements.
 	file = strings.Join(pathElements, string(os.PathSeparator))
