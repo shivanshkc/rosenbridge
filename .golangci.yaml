@@ -16,14 +16,14 @@ linters:
     - gci
     - gochecknoglobals
     - godox
-#    - goerr113
+    - goerr113
     - golint
 #    - gomnd
     - interfacer
     - ireturn
 #    - lll
     - maligned
-#    - nlreturn
+    - nlreturn
     - paralleltest
     - scopelint
     - tagliatelle

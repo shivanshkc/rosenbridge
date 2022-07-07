@@ -9,6 +9,7 @@ import (
 	"github.com/shivanshkc/rosenbridge/src/core/deps"
 	"github.com/shivanshkc/rosenbridge/src/handlers"
 	"github.com/shivanshkc/rosenbridge/src/logger"
+	"github.com/shivanshkc/rosenbridge/src/middlewares"
 
 	"github.com/gorilla/mux"
 )
@@ -38,7 +39,14 @@ func handler() http.Handler {
 	external := router.PathPrefix("/api").Subrouter()
 	internal := router.PathPrefix("/api/internal").Subrouter()
 
-	// TODO: Middlewares.
+	// Attaching global middlewares.
+	router.Use(middlewares.Recovery)
+	router.Use(middlewares.RequestContext)
+	router.Use(middlewares.AccessLogger)
+	router.Use(middlewares.CORS)
+
+	// Attaching internal middlewares.
+	internal.Use(middlewares.InternalBasicAuth)
 
 	// External routes.
 	external.HandleFunc("", handlers.GetIntro).Methods(http.MethodGet, http.MethodOptions)
