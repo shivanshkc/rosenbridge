@@ -18,6 +18,14 @@ type Model struct {
 		InternalPassword string `mapstructure:"internal_password"`
 	} `mapstructure:"auth"`
 
+	// Discovery is the model of the discovery address related configs.
+	Discovery struct {
+		// MaxAddrResolutionAttempts is max number of times we will attempt to resolve the discovery address.
+		MaxAddrResolutionAttempts int `mapstructure:"max_addr_resolution_attempts"`
+		// AddrResolutionPeriodSec is the number of seconds between two consecutive address resolution attempts.
+		AddrResolutionPeriodSec int `mapstructure:"addr_resolution_period_sec"`
+	} `mapstructure:"discovery"`
+
 	// HTTPServer is the model of the HTTP Server configs.
 	HTTPServer struct {
 		// Addr is the address of the HTTP server.

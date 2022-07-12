@@ -29,17 +29,10 @@ func main() {
 	// Creating database indexes. This also initiates a connection with the database upon application startup.
 	go createDatabaseIndexes(ctx, bridgeDB)
 
+	// Instantiating the discovery address resolver to resolve the address at the time of service startup.
 	resolver := discovery.NewResolver()
-	go func() {
-		time.Sleep(time.Second * 2)
-		fmt.Println("Attempting fetch...")
-
-		addr, err := resolver.GetAddress(ctx)
-		if err != nil {
-			panic("failed to get addr:" + err.Error())
-		}
-		fmt.Println(">>>> addr:", addr)
-	}()
+	// Starting a job to resolve the discovery address.
+	go discoveryAddressJob(ctx, resolver)
 
 	// Setting core dependencies.
 	deps.DepManager.SetDiscoveryAddressResolver(resolver)
@@ -74,6 +67,30 @@ func createDatabaseIndexes(ctx context.Context, bridgeDB *bridges.Database) {
 	}
 
 	log.Info(ctx, &logger.Entry{Payload: "database indexes created"})
+}
+
+// discoveryAddressJob runs a periodic job that tries to resolve the discovery address of the service.
+func discoveryAddressJob(ctx context.Context, resolver *discovery.ResolverCloudRun) {
+	// Prerequisites.
+	conf, log := configs.Get(), logger.Get()
+	// Defining the period between two consecutive jobs.
+	jobPeriod := time.Second * time.Duration(conf.Discovery.AddrResolutionPeriodSec)
+
+	// We'll run this job as per the configured number of times.
+	for i := 0; i < conf.Discovery.MaxAddrResolutionAttempts; i++ {
+		log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("discovery addr resolution job: %d", i)})
+		// This tries to get the discovery address and persists it for all later usages.
+		err := resolver.SetAddress(ctx)
+		if err == nil {
+			log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("discovery addr resolved: %s", resolver.Resolve())})
+			break
+		}
+		// Failure in resolution. Logging, sleeping and retrying.
+		log.Warn(ctx, &logger.Entry{Payload: fmt.Errorf("error in discovery addr resolution job: %d: %w", i, err)})
+		time.Sleep(jobPeriod)
+	}
+
+	panic("all attempts to resolve the discovery address failed")
 }
 
 // handler provides the http.Handler of the application.

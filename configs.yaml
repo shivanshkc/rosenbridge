@@ -7,6 +7,10 @@ auth:
   internal_username: dev
   internal_password: dev
 
+discovery:
+  max_addr_resolution_attempts: 10
+  addr_resolution_period_sec: 3
+
 http_server:
   addr: 0.0.0.0:8080
 
