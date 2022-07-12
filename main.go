@@ -113,7 +113,8 @@ func handler() http.Handler {
 
 	// External routes.
 	external.HandleFunc("", handlers.GetIntro).Methods(http.MethodGet, http.MethodOptions)
-	external.HandleFunc("/bridge", handlers.GetBridge).Methods(http.MethodGet, http.MethodOptions)
+	external.HandleFunc("/bridge", handlers.ListBridges).Methods(http.MethodGet, http.MethodOptions)
+	external.HandleFunc("/bridge/new", handlers.GetBridge).Methods(http.MethodGet, http.MethodOptions)
 	external.HandleFunc("/message", handlers.PostMessage).Methods(http.MethodPost, http.MethodOptions)
 	// Internal routes.
 	internal.HandleFunc("/message", handlers.PostMessageInternal).Methods(http.MethodPost, http.MethodOptions)
