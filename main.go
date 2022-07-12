@@ -32,25 +32,13 @@ func main() {
 	resolver := discovery.NewResolver()
 	go func() {
 		time.Sleep(time.Second * 2)
-		fmt.Println("Attempting fetches...")
+		fmt.Println("Attempting fetch...")
 
-		pid, errP := resolver.GetProjectID(ctx)
-		if errP != nil {
-			panic("failed to get project id:" + errP.Error())
+		addr, err := resolver.GetAddress(ctx)
+		if err != nil {
+			panic("failed to get addr:" + err.Error())
 		}
-		fmt.Println(">>>> pid:", pid)
-
-		region, errR := resolver.GetRegion(ctx)
-		if errR != nil {
-			panic("failed to get region:" + errR.Error())
-		}
-		fmt.Println(">>>> region:", region)
-
-		token, errT := resolver.GetToken(ctx)
-		if errT != nil {
-			panic("failed to get token:" + errT.Error())
-		}
-		fmt.Println(">>>> token:", token)
+		fmt.Println(">>>> addr:", addr)
 	}()
 
 	// Setting core dependencies.
