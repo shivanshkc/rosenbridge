@@ -77,19 +77,21 @@ func discoveryAddressJob(ctx context.Context, resolver *discovery.ResolverCloudR
 	jobPeriod := time.Second * time.Duration(conf.Discovery.AddrResolutionPeriodSec)
 
 	// We'll run this job as per the configured number of times.
+	// If successful, this loop returns (and does not break).
 	for i := 0; i < conf.Discovery.MaxAddrResolutionAttempts; i++ {
 		log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("discovery addr resolution job: %d", i)})
 		// This tries to get the discovery address and persists it for all later usages.
 		err := resolver.SetAddress(ctx)
 		if err == nil {
 			log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("discovery addr resolved: %s", resolver.Resolve())})
-			break
+			return
 		}
 		// Failure in resolution. Logging, sleeping and retrying.
 		log.Warn(ctx, &logger.Entry{Payload: fmt.Errorf("error in discovery addr resolution job: %d: %w", i, err)})
 		time.Sleep(jobPeriod)
 	}
 
+	// Discovery address is required for the service to work. So, we should panic.
 	panic("all attempts to resolve the discovery address failed")
 }
 
