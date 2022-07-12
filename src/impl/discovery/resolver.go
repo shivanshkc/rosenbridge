@@ -67,3 +67,71 @@ func (r *ResolverCloudRun) GetProjectID(ctx context.Context) (string, error) {
 
 	return string(projectIDBytes), nil
 }
+
+func (r *ResolverCloudRun) GetRegion(ctx context.Context) (string, error) {
+	endpoint := fmt.Sprintf("%s%s", gcpMetadataBaseURL, gcpRegionURL)
+	// Forming the HTTP request.
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	if err != nil {
+		return "", fmt.Errorf("error in http.NewRequestWithContext call: %w", err)
+	}
+
+	// Setting GCP headers.
+	request.Header.Set(gcpHeaderKey, gcpHeaderValue)
+	// Creating the HTTP client.
+	client := &http.Client{}
+	// Executing the request.
+	response, err := client.Do(request)
+	if err != nil {
+		return "", fmt.Errorf("error in client.Do call: %w", err)
+	}
+	// Closing response body upon function return.
+	defer func() { _ = response.Body.Close() }()
+	// Handling unsuccessful responses.
+	if httputils.Is2xx(response.StatusCode) {
+		return "", fmt.Errorf("response has unsuccessful status: %d", response.StatusCode)
+	}
+
+	// Reading the response body into a byte slice.
+	regionBytes, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return "", fmt.Errorf("error in ioutil.Readall call: %w", err)
+	}
+
+	fmt.Println("Region bytes:", string(regionBytes))
+	return string(regionBytes), nil
+}
+
+func (r *ResolverCloudRun) GetToken(ctx context.Context) (string, error) {
+	endpoint := fmt.Sprintf("%s%s", gcpMetadataBaseURL, gcpTokenURL)
+	// Forming the HTTP request.
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	if err != nil {
+		return "", fmt.Errorf("error in http.NewRequestWithContext call: %w", err)
+	}
+
+	// Setting GCP headers.
+	request.Header.Set(gcpHeaderKey, gcpHeaderValue)
+	// Creating the HTTP client.
+	client := &http.Client{}
+	// Executing the request.
+	response, err := client.Do(request)
+	if err != nil {
+		return "", fmt.Errorf("error in client.Do call: %w", err)
+	}
+	// Closing response body upon function return.
+	defer func() { _ = response.Body.Close() }()
+	// Handling unsuccessful responses.
+	if httputils.Is2xx(response.StatusCode) {
+		return "", fmt.Errorf("response has unsuccessful status: %d", response.StatusCode)
+	}
+
+	// Reading the response body into a byte slice.
+	tokenBytes, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return "", fmt.Errorf("error in ioutil.Readall call: %w", err)
+	}
+
+	fmt.Println("token bytes:", string(tokenBytes))
+	return string(tokenBytes), nil
+}
