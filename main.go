@@ -35,21 +35,21 @@ func main() {
 		fmt.Println("Attempting fetches...")
 
 		pid, errP := resolver.GetProjectID(ctx)
-		region, errR := resolver.GetRegion(ctx)
-		token, errT := resolver.GetToken(ctx)
-
 		if errP != nil {
 			panic("failed to get project id:" + errP.Error())
 		}
+		fmt.Println(">>>> pid:", pid)
+
+		region, errR := resolver.GetRegion(ctx)
 		if errR != nil {
 			panic("failed to get region:" + errR.Error())
 		}
+		fmt.Println(">>>> region:", region)
+
+		token, errT := resolver.GetToken(ctx)
 		if errT != nil {
 			panic("failed to get token:" + errT.Error())
 		}
-
-		fmt.Println(">>>> pid:", pid)
-		fmt.Println(">>>> region:", region)
 		fmt.Println(">>>> token:", token)
 	}()
 
