@@ -152,7 +152,7 @@ func (r *ResolverCloudRun) getToken(ctx context.Context) (string, error) {
 	return bodyStruct.AccessToken, nil
 }
 
-func (r *ResolverCloudRun) GetAddress(ctx context.Context) (interface{}, error) {
+func (r *ResolverCloudRun) GetAddress(ctx context.Context) (string, error) {
 	kService := os.Getenv("K_SERVICE")
 	if kService == "" {
 		return "", errors.New("K_SERVICE env var is empty")
@@ -241,11 +241,18 @@ func (r *ResolverCloudRun) GetAddress(ctx context.Context) (interface{}, error) 
 		return "", fmt.Errorf("response has unsuccessful status: %d", response.StatusCode)
 	}
 
-	// Decoding the response body into a map.
-	bodyMap := &map[string]interface{}{}
-	if err := json.NewDecoder(response.Body).Decode(bodyMap); err != nil {
+	// This is the expected response body structure.
+	bodyStruct := &struct {
+		Status *struct {
+			URL string `json:"url"`
+		} `json:"status"`
+	}{}
+
+	// Decoding the response body into the intended struct.
+	if err := json.NewDecoder(response.Body).Decode(bodyStruct); err != nil {
 		return "", fmt.Errorf("error in json.NewDecoder(...).Decode call: %w", err)
 	}
 
-	return bodyMap, nil
+	// Returning the access token.
+	return bodyStruct.Status.URL, nil
 }
