@@ -8,16 +8,8 @@ permissions:
   contents: read
 
 jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/lint
-
   test:
     name: Test
-    needs: lint
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v3
