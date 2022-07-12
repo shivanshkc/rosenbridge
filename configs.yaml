@@ -1,6 +1,6 @@
 ---
 application:
-  name: rosenbridge
+  name: rosenbridge-1
   version: 0.0.0
 
 auth:
