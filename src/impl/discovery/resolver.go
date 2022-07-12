@@ -2,8 +2,8 @@ package discovery
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/shivanshkc/rosenbridge/src/utils/httputils"
@@ -59,11 +59,11 @@ func (r *ResolverCloudRun) GetProjectID(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("response has unsuccessful status: %d", response.StatusCode)
 	}
 
-	// Decoding the body into project ID.
-	var projectID string
-	if err := json.NewDecoder(response.Body).Decode(&projectID); err != nil {
-		return "", fmt.Errorf("error in json.NewDecoder(...).Decode call: %w", err)
+	// Reading the response body into a byte slice.
+	projectIDBytes, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return "", fmt.Errorf("error in ioutil.Readall call: %w", err)
 	}
 
-	return projectID, nil
+	return string(projectIDBytes), nil
 }
