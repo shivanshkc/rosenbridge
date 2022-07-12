@@ -1,5 +1,9 @@
 package models
 
+import (
+	"net/http"
+)
+
 // BridgeMessage is the general schema of all messages that are sent over a bridge.
 type BridgeMessage struct {
 	// Type of the message. It can be used to differentiate and route various kinds of messages.
@@ -41,4 +45,20 @@ type BridgeDoc struct {
 	NodeAddr string `json:"node_addr" bson:"node_addr"`
 	// ConnectedAt is the time at which connection was established.
 	ConnectedAt int64 `json:"connected_at" bson:"connected_at"`
+}
+
+// BridgeCreateParams are the params required to create a new bridge through the BridgeManager.
+type BridgeCreateParams struct {
+	// Identity attributes of the bridge.
+	*BridgeIdentityInfo
+
+	// Writer is required to upgrade the connection to websocket (if the websocket protocol is being used).
+	Writer http.ResponseWriter
+	// Request is required to upgrade the connection to websocket (if the websocket protocol is being used).
+	Request *http.Request
+
+	// MaxBridgeCount is the max number of bridges allowed. It is optional.
+	MaxBridgeCount *int
+	// MaxBridgeCountPerClient is the max number of bridges allowed per client. It is optional.
+	MaxBridgeCountPerClient *int
 }

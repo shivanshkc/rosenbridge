@@ -44,9 +44,10 @@ func (r *ResolverCloudRun) Resolve() string {
 }
 
 // SetAddress calls the required GCP APIs to figure out the service's address and persists it.
+// nolint:funlen // This function makes a number of parallel API calls. So, its length is acceptable.
 func (r *ResolverCloudRun) SetAddress(ctx context.Context) error {
 	// The K_SERVICE env var is set automatically inside the GCP machine.
-	kService := os.Getenv("K_SERVICE")
+	kService := os.Getenv("K_SERVICE") // nolint:revive // Leading k is acceptable here.
 	if kService == "" {
 		return errors.New("K_SERVICE env var is empty")
 	}
@@ -142,6 +143,7 @@ func (r *ResolverCloudRun) SetAddress(ctx context.Context) error {
 
 	// Setting the discovery address.
 	r.discoveryAddr = bodyStruct.Status.URL
+
 	return nil
 }
 
@@ -214,6 +216,7 @@ func (r *ResolverCloudRun) getRegion(ctx context.Context) (string, error) {
 	// Region is of the form: "projects/948115683669/regions/us-central1".
 	// So, we split it by "/" character and then take the last element.
 	regionElements := strings.Split(string(regionBytes), "/")
+	// Retuning the last element of the whole region string.
 	return regionElements[len(regionElements)-1], nil
 }
 

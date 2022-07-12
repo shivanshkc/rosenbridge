@@ -78,7 +78,7 @@ func discoveryAddressJob(ctx context.Context, resolver *discovery.ResolverCloudR
 
 	// We'll run this job as per the configured number of times.
 	// If successful, this loop returns (and does not break).
-	for i := 0; i < conf.Discovery.MaxAddrResolutionAttempts; i++ {
+	for i := 0; i < conf.Discovery.MaxAddrResolutionAttempts; i++ { // nolint:varnamelen
 		log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("discovery addr resolution job: %d", i)})
 		// This tries to get the discovery address and persists it for all later usages.
 		err := resolver.SetAddress(ctx)

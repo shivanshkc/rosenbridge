@@ -22,13 +22,16 @@ type Bridge interface {
 	// SetErrorHandler sets the error handler for the bridge.
 	// It is called whenever there's an error in the bridge, except for connection closure.
 	SetErrorHandler(handler func(err error))
+
+	// Close disconnects the bridge.
+	Close() error
 }
 
 // BridgeManager manages all the bridges hosted by this node.
 // It involves CRUD operations on these bridges on the basis of their clientID and bridgeID.
 type BridgeManager interface {
 	// CreateBridge creates a new bridge and makes it available for other CRUD operations.
-	CreateBridge(ctx context.Context, params interface{}) (Bridge, error)
+	CreateBridge(ctx context.Context, params *models.BridgeCreateParams) (Bridge, error)
 	// GetBridge fetches the bridge that matches the provided ID. It returns nil if the bridge is not found.
 	GetBridge(ctx context.Context, bridgeID string) Bridge
 	// DeleteBridge disconnects and deletes the specified bridge.
