@@ -152,7 +152,7 @@ func (r *ResolverCloudRun) getToken(ctx context.Context) (string, error) {
 	return bodyStruct.AccessToken, nil
 }
 
-func (r *ResolverCloudRun) GetAddress(ctx context.Context) (string, error) {
+func (r *ResolverCloudRun) GetAddress(ctx context.Context) (interface{}, error) {
 	kService := os.Getenv("K_SERVICE")
 	if kService == "" {
 		return "", errors.New("K_SERVICE env var is empty")
@@ -241,12 +241,11 @@ func (r *ResolverCloudRun) GetAddress(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("response has unsuccessful status: %d", response.StatusCode)
 	}
 
-	// Reading the response body into a byte slice.
-	addrBytes, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return "", fmt.Errorf("error in ioutil.Readall call: %w", err)
+	// Decoding the response body into a map.
+	bodyMap := &map[string]interface{}{}
+	if err := json.NewDecoder(response.Body).Decode(bodyMap); err != nil {
+		return "", fmt.Errorf("error in json.NewDecoder(...).Decode call: %w", err)
 	}
 
-	fmt.Println("Addr bytes:", string(addrBytes))
-	return string(addrBytes), nil
+	return bodyMap, nil
 }
