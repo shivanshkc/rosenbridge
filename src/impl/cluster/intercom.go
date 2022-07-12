@@ -1,11 +1,16 @@
 package cluster
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"sync"
 
+	"github.com/shivanshkc/rosenbridge/src/configs"
 	"github.com/shivanshkc/rosenbridge/src/core/models"
+	"github.com/shivanshkc/rosenbridge/src/utils/httputils"
 )
 
 // Intercom implements deps.Intercom interface using HTTP.
@@ -18,10 +23,64 @@ type Intercom struct {
 
 // NewIntercom is a constructor for *Intercom.
 func NewIntercom() *Intercom {
-	return nil
+	return &Intercom{
+		httpClients:      map[string]*http.Client{},
+		httpClientsMutex: &sync.RWMutex{},
+	}
 }
 
 func (i *Intercom) PostMessageInternal(ctx context.Context, nodeAddr string, params *models.OutgoingMessageInternalReq,
 ) (*models.OutgoingMessageInternalRes, error) {
-	panic("implement me")
+	// Prerequisites.
+	conf := configs.Get()
+
+	// Obtaining request ID from the provided context.
+	requestID := httputils.GetReqCtx(ctx).ID
+
+	// Locking the httpClients map for read-write operations.
+	i.httpClientsMutex.Lock()
+	defer i.httpClientsMutex.Unlock()
+
+	// Checking if there's already a http client for this node, otherwise creating a new one.
+	httpClient, exists := i.httpClients[nodeAddr]
+	if !exists {
+		httpClient = &http.Client{}
+		i.httpClients[nodeAddr] = httpClient
+	}
+
+	// Converting the body into a byte slice.
+	reqBytes, err := json.Marshal(params)
+	if err != nil {
+		return nil, fmt.Errorf("error in json.Marshal call: %w", err)
+	}
+	// Converting the byte slice into an io.Reader.
+	reqReader := bytes.NewReader(reqBytes)
+
+	// Forming the request endpoint.
+	endpoint := fmt.Sprintf("%s/api/internal/message", nodeAddr)
+	// Creating the HTTP request.
+	request, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, reqReader)
+	if err != nil {
+		return nil, fmt.Errorf("error in http.NewRequestWithContext call: %w", err)
+	}
+	// Adding the required headers.
+	request.Header.Set("x-request-id", requestID)
+	// Setting the cluster basic auth params.
+	request.SetBasicAuth(conf.Auth.InternalUsername, conf.Auth.InternalPassword)
+
+	// Executing the request.
+	response, err := httpClient.Do(request)
+	if err != nil {
+		return nil, fmt.Errorf("error in httpClient.Do call: %w", err)
+	}
+	// Closing the response body upon function return.
+	defer func() { _ = response.Body.Close() }()
+
+	// Unmarshalling the response body into OutgoingMessageInternalRes.
+	responseBody := &models.OutgoingMessageInternalRes{}
+	if err := json.NewDecoder(response.Body).Decode(responseBody); err != nil {
+		return nil, fmt.Errorf("error in json.NewDecoder(...).Decode call: %w", err)
+	}
+
+	return responseBody, nil
 }
