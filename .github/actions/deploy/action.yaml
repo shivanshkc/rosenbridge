@@ -80,7 +80,7 @@ runs:
           --port=8080 \
           --service-account=${{ inputs.service-account-email }} \
           --timeout=600 \
-          --set-secrets=/etc/${{ inputs.service }}/configs.yaml=${{ inputs.service }}-configs:latest \
+          --set-secrets=/etc/configs.yaml=${{ inputs.service }}-configs:latest \
           --image=${{ inputs.region }}-docker.pkg.dev/${{ inputs.project-id }}/${{ inputs.repository }}/${{ inputs.service }}:latest \
           --cpu-throttling \
           --region=${{ inputs.region }}
