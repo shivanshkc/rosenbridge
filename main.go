@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/shivanshkc/rosenbridge/src/configs"
 	"github.com/shivanshkc/rosenbridge/src/core/deps"
@@ -28,8 +29,21 @@ func main() {
 	// Creating database indexes. This also initiates a connection with the database upon application startup.
 	go createDatabaseIndexes(ctx, bridgeDB)
 
+	resolver := discovery.NewResolver()
+	go func() {
+		time.Sleep(time.Second * 2)
+		fmt.Println("Attempting pid fetch...")
+
+		pid, err := resolver.GetProjectID(ctx)
+		if err != nil {
+			panic("failed to get project id:" + err.Error())
+		}
+
+		fmt.Println(">>>> pid:", pid)
+	}()
+
 	// Setting core dependencies.
-	deps.DepManager.SetDiscoveryAddressResolver(discovery.NewResolver())
+	deps.DepManager.SetDiscoveryAddressResolver(resolver)
 	deps.DepManager.SetBridgeManager(bridges.NewManager())
 	deps.DepManager.SetBridgeDatabase(bridgeDB)
 	deps.DepManager.SetIntercom(cluster.NewIntercom())

@@ -28,12 +28,6 @@ type ResolverCloudRun struct {
 
 // NewResolver is a constructor for *Resolver.
 func NewResolver() *ResolverCloudRun {
-	pID, err := (&ResolverCloudRun{}).getProjectID(context.Background())
-	if err != nil {
-		panic("failed to get project ID:" + err.Error())
-	}
-
-	fmt.Println(">>>> PROJECT ID:", pID)
 	return nil
 }
 
@@ -41,7 +35,7 @@ func (r *ResolverCloudRun) Resolve() string {
 	return r.discoveryAddr
 }
 
-func (r *ResolverCloudRun) getProjectID(ctx context.Context) (string, error) {
+func (r *ResolverCloudRun) GetProjectID(ctx context.Context) (string, error) {
 	endpoint := fmt.Sprintf("%s%s", gcpMetadataBaseURL, gcpProjectIDURL)
 	// Forming the HTTP request.
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
