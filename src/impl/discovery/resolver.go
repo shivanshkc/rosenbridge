@@ -42,7 +42,7 @@ func (r *ResolverCloudRun) Resolve() string {
 }
 
 func (r *ResolverCloudRun) getProjectID(ctx context.Context) (string, error) {
-	endpoint := fmt.Sprintf("%s/%s", gcpMetadataBaseURL, gcpProjectIDURL)
+	endpoint := fmt.Sprintf("%s%s", gcpMetadataBaseURL, gcpProjectIDURL)
 	// Forming the HTTP request.
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
