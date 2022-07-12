@@ -8,24 +8,8 @@ permissions:
   contents: read
 
 jobs:
-  test:
-    name: Test
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/test
-
-  build:
-    name: Build
-    needs: test
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/build
-
   deploy:
     name: Deploy
-    needs: build
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v3
