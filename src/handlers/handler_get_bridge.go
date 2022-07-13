@@ -19,7 +19,15 @@ import (
 func GetBridge(w http.ResponseWriter, r *http.Request) { // nolint:varnamelen // I like the "w" and "r" names.
 	// Reading and validating client ID.
 	clientID := r.Header.Get("x-client-id")
-	// TODO: Validate clientID.
+	// Validating the client ID.
+	if err := checkClientID(clientID); err != nil {
+		// Converting to HTTP error.
+		errHTTP := errutils.BadRequest().WithReasonError(err)
+		// Sending back the response.
+		httputils.Write(w, errHTTP.Status, nil, errHTTP)
+		// Ending execution.
+		return
+	}
 
 	// Calling the core function.
 	bridge, err := core.CreateBridge(r.Context(), clientID, w, r)
@@ -43,14 +51,28 @@ func bridgeMessageHandler(ctx context.Context, bridge deps.Bridge, clientID stri
 	// Prerequisites.
 	log := logger.Get() // nolint:staticcheck // Wrongly reported.
 
-	// TODO: Validate bridge message.
+	// Obtaining request ID safely.
+	var requestID string
+	if message != nil {
+		requestID = message.RequestID
+	}
 
 	// Creating the response bridge message and populating the known fields.
 	responseMessage := &models.BridgeMessage{
 		// Body will be attached later.
 		Body:      nil,
 		Type:      constants.MessageOutgoingRes,
-		RequestID: message.RequestID,
+		RequestID: requestID,
+	}
+
+	// Validating the bridge message.
+	if err := checkBridgeMessage(message); err != nil {
+		// Attaching the error as the body.
+		responseMessage.Body = errutils.BadRequest().WithReasonError(err)
+		// Sending back the error response.
+		sendMessageAndLog(ctx, bridge, responseMessage)
+		// Ending execution.
+		return
 	}
 
 	// Converting the message body into an outgoing-message-request.
