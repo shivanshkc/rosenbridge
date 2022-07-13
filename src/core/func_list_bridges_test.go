@@ -1,1 +1,1 @@
-package core
+package core_test
