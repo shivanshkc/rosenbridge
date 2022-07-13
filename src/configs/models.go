@@ -18,6 +18,14 @@ type Model struct {
 		InternalPassword string `mapstructure:"internal_password"`
 	} `mapstructure:"auth"`
 
+	// Bridges is the model of bridge-related configs.
+	Bridges struct {
+		// MaxBridgeLimit is the max number of bridges this node can host.
+		MaxBridgeLimit int `mapstructure:"max_bridge_limit"`
+		// MaxBridgeLimitPerClient is the max number of bridges this node can host per client.
+		MaxBridgeLimitPerClient int `mapstructure:"max_bridge_limit_per_client"`
+	} `mapstructure:"bridges"`
+
 	// Discovery is the model of the discovery address related configs.
 	Discovery struct {
 		// MaxAddrResolutionAttempts is max number of times we will attempt to resolve the discovery address.

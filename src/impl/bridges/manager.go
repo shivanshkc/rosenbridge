@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/shivanshkc/rosenbridge/src/configs"
 	"github.com/shivanshkc/rosenbridge/src/core/deps"
 	"github.com/shivanshkc/rosenbridge/src/core/models"
 	"github.com/shivanshkc/rosenbridge/src/logger"
@@ -42,20 +43,20 @@ func NewManager() *Manager {
 }
 
 func (m *Manager) CreateBridge(ctx context.Context, params *models.BridgeCreateParams) (deps.Bridge, error) {
-	log := logger.Get()
+	// Prerequisites.
+	conf, log := configs.Get(), logger.Get()
 
 	// Locking the bridges map and count for read-write operations.
 	m.bridgesMutex.Lock()
 	defer m.bridgesMutex.Unlock()
 
 	// Checking if the bridge limit is reached.
-	if params.MaxBridgeCount != nil && m.bridgeCount >= *params.MaxBridgeCount {
+	if m.bridgeCount >= conf.Bridges.MaxBridgeLimit {
 		log.Warn(ctx, &logger.Entry{Payload: fmt.Sprintf("node has reached its bridge limit: %d", m.bridgeCount)})
 		return nil, errutils.TooManyBridges()
 	}
 	// Checking if the bridge limit per client has reached.
-	if params.MaxBridgeCountPerClient != nil &&
-		m.bridgeCountPerClient[params.ClientID] >= *params.MaxBridgeCountPerClient {
+	if m.bridgeCountPerClient[params.ClientID] >= conf.Bridges.MaxBridgeLimitPerClient {
 		log.Warn(ctx, &logger.Entry{Payload: fmt.Sprintf("node has reached its bridge limit for client: %s: %d",
 			params.ClientID, m.bridgeCount)})
 		return nil, errutils.TooManyBridgesForClient()

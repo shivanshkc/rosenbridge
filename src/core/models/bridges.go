@@ -56,9 +56,4 @@ type BridgeCreateParams struct {
 	Writer http.ResponseWriter
 	// Request is required to upgrade the connection to websocket (if the websocket protocol is being used).
 	Request *http.Request
-
-	// MaxBridgeCount is the max number of bridges allowed. It is optional.
-	MaxBridgeCount *int
-	// MaxBridgeCountPerClient is the max number of bridges allowed per client. It is optional.
-	MaxBridgeCountPerClient *int
 }
