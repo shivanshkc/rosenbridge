@@ -30,6 +30,8 @@ type BridgeIdentityInfo struct {
 type BridgeStatus struct {
 	// Identity attributes of the bridge.
 	*BridgeIdentityInfo
+	// NodeAddr is the address of the node which was expected to host the concerned bridge.
+	NodeAddr string `json:"node_addr"`
 	// Response code and reason.
 	*CodeAndReason
 }
