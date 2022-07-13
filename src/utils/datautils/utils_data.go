@@ -3,6 +3,8 @@ package datautils
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 )
 
 // AnyToBytes converts the provided input to a byte slice.
@@ -14,6 +16,14 @@ func AnyToBytes(input interface{}) ([]byte, error) {
 		return asserted, nil
 	case string:
 		return []byte(asserted), nil
+	case io.Reader:
+		// Reading all the data.
+		inputBytes, err := ioutil.ReadAll(asserted)
+		if err != nil {
+			return nil, fmt.Errorf("error in ioutil.ReadAll call: %w", err)
+		}
+		// Conversion successful.
+		return inputBytes, nil
 	default:
 		// Marshalling to JSON. This works with all primitive data types and structs etc.
 		inputBytes, err := json.Marshal(input)

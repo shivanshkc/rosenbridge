@@ -6,8 +6,8 @@ package models
 type OutgoingMessageReq struct {
 	// SenderID is the ID of client who sent this message.
 	SenderID string `json:"sender_id"`
-	// ReceiverIDs is the list of client IDs that are intended to receive this message.
-	ReceiverIDs []string `json:"receiver_ids"`
+	// Bridges is the list of bridges that are intended to receive this message.
+	Bridges []*BridgeInfo `json:"bridges"`
 	// Message is the main message content that needs to be delivered.
 	Message string `json:"message"`
 }

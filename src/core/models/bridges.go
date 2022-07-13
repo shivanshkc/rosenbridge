@@ -24,14 +24,19 @@ type BridgeIdentityInfo struct {
 	BridgeID string `json:"bridge_id"`
 }
 
+// BridgeInfo encapsulates a bridge's basic info attributes.
+type BridgeInfo struct {
+	*BridgeIdentityInfo
+	// NodeAddr is the address of the node which was expected to host the concerned bridge.
+	NodeAddr string `json:"node_addr"`
+}
+
 // BridgeStatus tells about the status of an operation on a bridge. For example a SendMessage operation.
 //
 // It encapsulates the identity attributes of a bridge and the response code and reason.
 type BridgeStatus struct {
-	// Identity attributes of the bridge.
-	*BridgeIdentityInfo
-	// NodeAddr is the address of the node which was expected to host the concerned bridge.
-	NodeAddr string `json:"node_addr"`
+	// Basic attributes of the bridge.
+	*BridgeInfo
 	// Response code and reason.
 	*CodeAndReason
 }
