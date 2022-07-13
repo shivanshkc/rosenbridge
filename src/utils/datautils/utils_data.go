@@ -24,3 +24,19 @@ func AnyToBytes(input interface{}) ([]byte, error) {
 		return inputBytes, nil
 	}
 }
+
+// AnyToAny marshals the provided input and then un-marshals it into the provided output.
+func AnyToAny(input interface{}, targetOutput interface{}) error {
+	// Marshalling the input.
+	inputBytes, err := AnyToBytes(input)
+	if err != nil {
+		return fmt.Errorf("error in AnyToBytes call: %w", err)
+	}
+
+	// Unmarshalling into the target.
+	if err := json.Unmarshal(inputBytes, targetOutput); err != nil {
+		return fmt.Errorf("error in json.Unmarshal call: %w", err)
+	}
+
+	return nil
+}
