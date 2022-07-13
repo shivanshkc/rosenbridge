@@ -56,4 +56,7 @@ type BridgeCreateParams struct {
 	Writer http.ResponseWriter
 	// Request is required to upgrade the connection to websocket (if the websocket protocol is being used).
 	Request *http.Request
+
+	// ResponseHeaders are the headers that should be included in the websocket response.
+	ResponseHeaders http.Header
 }
