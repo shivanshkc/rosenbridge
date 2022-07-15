@@ -26,8 +26,8 @@ type ResolverCloudRun struct {
 	httpClient *http.Client
 }
 
-// NewResolver is a constructor for *Resolver.
-func NewResolver() *ResolverCloudRun {
+// NewResolverCloudRun is a constructor for *ResolverCloudRun.
+func NewResolverCloudRun() *ResolverCloudRun {
 	return &ResolverCloudRun{
 		discoveryAddr:      "",
 		discoveryAddrMutex: &sync.RWMutex{},
@@ -35,7 +35,8 @@ func NewResolver() *ResolverCloudRun {
 	}
 }
 
-func (r *ResolverCloudRun) Resolve() string {
+// Read returns the persisted discovery address.
+func (r *ResolverCloudRun) Read() string {
 	// Locking for reading.
 	r.discoveryAddrMutex.RLock()
 	defer r.discoveryAddrMutex.RUnlock()
@@ -43,9 +44,9 @@ func (r *ResolverCloudRun) Resolve() string {
 	return r.discoveryAddr
 }
 
-// SetAddress calls the required GCP APIs to figure out the service's address and persists it.
+// Resolve calls the required GCP APIs to figure out the service's address and persists it.
 // nolint:funlen // This function makes a number of parallel API calls. So, its length is acceptable.
-func (r *ResolverCloudRun) SetAddress(ctx context.Context) error {
+func (r *ResolverCloudRun) Resolve(ctx context.Context) error {
 	// The K_SERVICE env var is set automatically inside the GCP machine.
 	kService := os.Getenv("K_SERVICE") // nolint:revive // Leading k is acceptable here.
 	if kService == "" {
@@ -147,6 +148,7 @@ func (r *ResolverCloudRun) SetAddress(ctx context.Context) error {
 	return nil
 }
 
+// getProjectID queries the GCP VM metadata API to get the project ID of this Cloud Run instance.
 func (r *ResolverCloudRun) getProjectID(ctx context.Context) (string, error) {
 	// Forming the API route.
 	endpoint := fmt.Sprintf("%s%s", gcpBaseURL, gcpProjectIDURL)
@@ -181,6 +183,7 @@ func (r *ResolverCloudRun) getProjectID(ctx context.Context) (string, error) {
 	return string(projectIDBytes), nil
 }
 
+// getRegion queries the GCP VM metadata API to get the region of this Cloud Run instance.
 func (r *ResolverCloudRun) getRegion(ctx context.Context) (string, error) {
 	// Forming the API route.
 	endpoint := fmt.Sprintf("%s%s", gcpBaseURL, gcpRegionURL)
@@ -220,6 +223,7 @@ func (r *ResolverCloudRun) getRegion(ctx context.Context) (string, error) {
 	return regionElements[len(regionElements)-1], nil
 }
 
+// getToken queries the GCP VM metadata API to get the access token that's required to hit the service status API.
 func (r *ResolverCloudRun) getToken(ctx context.Context) (string, error) {
 	// Forming the API route.
 	endpoint := fmt.Sprintf("%s%s", gcpBaseURL, gcpTokenURL)

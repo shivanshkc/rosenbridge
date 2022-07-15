@@ -28,6 +28,8 @@ type Model struct {
 
 	// Discovery is the model of the discovery address related configs.
 	Discovery struct {
+		// DiscoveryAddr can be populated if it is known beforehand.
+		DiscoveryAddr string `mapstructure:"discovery_addr"`
 		// MaxAddrResolutionAttempts is max number of times we will attempt to resolve the discovery address.
 		MaxAddrResolutionAttempts int `mapstructure:"max_addr_resolution_attempts"`
 		// AddrResolutionPeriodSec is the number of seconds between two consecutive address resolution attempts.

@@ -12,6 +12,7 @@ bridges:
   max_bridge_limit_per_client: 10
 
 discovery:
+  discovery_addr: http://0.0.0.0:8080
   max_addr_resolution_attempts: 10
   addr_resolution_period_sec: 3
 

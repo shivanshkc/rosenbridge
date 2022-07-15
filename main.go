@@ -30,7 +30,15 @@ func main() {
 	go createDatabaseIndexes(ctx, bridgeDB)
 
 	// Instantiating the discovery address resolver to resolve the address at the time of service startup.
-	resolver := discovery.NewResolver()
+	var resolver deps.DiscoveryAddressResolver
+	// Judging which resolver implementation to use.
+	switch conf.Discovery.DiscoveryAddr {
+	case "":
+		resolver = discovery.NewResolverCloudRun()
+	default:
+		resolver = discovery.NewResolverLocal()
+	}
+
 	// Starting a job to resolve the discovery address.
 	go discoveryAddressJob(ctx, resolver)
 
@@ -70,9 +78,10 @@ func createDatabaseIndexes(ctx context.Context, bridgeDB *bridges.Database) {
 }
 
 // discoveryAddressJob runs a periodic job that tries to resolve the discovery address of the service.
-func discoveryAddressJob(ctx context.Context, resolver *discovery.ResolverCloudRun) {
+func discoveryAddressJob(ctx context.Context, resolver deps.DiscoveryAddressResolver) {
 	// Prerequisites.
 	conf, log := configs.Get(), logger.Get()
+
 	// Defining the period between two consecutive jobs.
 	jobPeriod := time.Second * time.Duration(conf.Discovery.AddrResolutionPeriodSec)
 
@@ -80,12 +89,14 @@ func discoveryAddressJob(ctx context.Context, resolver *discovery.ResolverCloudR
 	// If successful, this loop returns (and does not break).
 	for i := 0; i < conf.Discovery.MaxAddrResolutionAttempts; i++ { // nolint:varnamelen
 		log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("discovery addr resolution job: %d", i)})
-		// This tries to get the discovery address and persists it for all later usages.
-		err := resolver.SetAddress(ctx)
+
+		// Resolving the address.
+		err := resolver.Resolve(ctx)
 		if err == nil {
-			log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("discovery addr resolved: %s", resolver.Resolve())})
+			log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("discovery addr resolved: %s", resolver.Read())})
 			return
 		}
+
 		// Failure in resolution. Logging, sleeping and retrying.
 		log.Warn(ctx, &logger.Entry{Payload: fmt.Errorf("error in discovery addr resolution job: %d: %w", i, err)})
 		time.Sleep(jobPeriod)
