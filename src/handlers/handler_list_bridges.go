@@ -13,7 +13,15 @@ import (
 // ListBridges is the handler for the GET Bridge List API of Rosenbridge.
 func ListBridges(w http.ResponseWriter, r *http.Request) { // nolint:varnamelen // I like the "w" and "r" names.
 	clientIDs := r.URL.Query()["client_id"]
-	// TODO: Validate clientIDs slice.
+	// Checking the slice of client IDs.
+	if err := checkClientIDSlice(clientIDs); err != nil {
+		// Converting to HTTP error.
+		errHTTP := errutils.BadRequest().WithReasonError(err)
+		// Sending back the response.
+		httputils.Write(w, errHTTP.Status, nil, errHTTP)
+		// Ending execution.
+		return
+	}
 
 	// Calling the core function.
 	bridges, err := core.ListBridges(r.Context(), clientIDs)

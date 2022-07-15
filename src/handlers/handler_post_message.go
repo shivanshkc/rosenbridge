@@ -26,7 +26,15 @@ func PostMessage(w http.ResponseWriter, r *http.Request) { // nolint:varnamelen 
 		return
 	}
 
-	// TODO: Validate outgoing-message-req.
+	// Validating the outgoing-message-req.
+	if err := checkOutgoingMessageReq(outgoingMessageReq); err != nil {
+		// Converting to HTTP error.
+		errHTTP := errutils.BadRequest().WithReasonError(err)
+		// Sending back the response.
+		httputils.Write(w, errHTTP.Status, nil, errHTTP)
+		// Ending execution.
+		return
+	}
 
 	// Calling the core function.
 	responseBody, err := core.PostMessage(r.Context(), outgoingMessageReq)

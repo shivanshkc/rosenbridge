@@ -47,6 +47,7 @@ func GetBridge(w http.ResponseWriter, r *http.Request) { // nolint:varnamelen //
 }
 
 // bridgeMessageHandler is the access layer for all bridge messages.
+// nolint:funlen // Validation error handling makes this function larger. Making it short would be too much work!
 func bridgeMessageHandler(ctx context.Context, bridge deps.Bridge, clientID string, message *models.BridgeMessage) {
 	// Prerequisites.
 	log := logger.Get() // nolint:staticcheck // Wrongly reported.
@@ -86,10 +87,18 @@ func bridgeMessageHandler(ctx context.Context, bridge deps.Bridge, clientID stri
 		return
 	}
 
-	// TODO: Validate outgoing-message-request.
-
 	// The sender has to be the same person to whom this bridge belongs.
 	outMessageReq.SenderID = clientID
+
+	// Validating the outgoing-message-req.
+	if err := checkOutgoingMessageReq(outMessageReq); err != nil {
+		// Attaching the error as the body.
+		responseMessage.Body = errutils.BadRequest().WithReasonError(err)
+		// Sending back the error response.
+		sendMessageAndLog(ctx, bridge, responseMessage)
+		// Ending execution.
+		return
+	}
 
 	// Calling the core function.
 	responseBody, err := core.PostMessage(ctx, outMessageReq)
