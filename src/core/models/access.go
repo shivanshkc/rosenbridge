@@ -1,5 +1,15 @@
 package models
 
+// IncomingMessageReq represents an incoming message for a client.
+//
+// It is called "incoming message request" because the naming is done from the client's perspective.
+type IncomingMessageReq struct {
+	// SenderID is the ID of the client who sent the message.
+	SenderID string `json:"sender_id"`
+	// Message is the main message content.
+	Message string `json:"message"`
+}
+
 // OutgoingMessageReq represents a request from a client to send a message.
 //
 // It is called "outgoing message request" because the naming is done from the client's perspective.
