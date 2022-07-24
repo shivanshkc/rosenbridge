@@ -32,10 +32,12 @@ type Bridge interface {
 type BridgeManager interface {
 	// CreateBridge creates a new bridge and makes it available for other CRUD operations.
 	CreateBridge(ctx context.Context, params *models.BridgeCreateParams) (Bridge, error)
-	// GetBridge fetches the bridge that matches the provided ID. It returns nil if the bridge is not found.
-	GetBridge(ctx context.Context, bridgeID string) Bridge
-	// DeleteBridge disconnects and deletes the specified bridge.
-	DeleteBridge(ctx context.Context, bridgeID string)
+	// GetBridgeByID fetches the bridge that matches the provided ID. It returns nil if the bridge is not found.
+	GetBridgeByID(ctx context.Context, bridgeID string) Bridge
+	// GetBridgesByClientID fetches all bridges for the provided client ID.
+	GetBridgesByClientID(ctx context.Context, clientID string) []Bridge
+	// DeleteBridgeByID disconnects and deletes the specified bridge.
+	DeleteBridgeByID(ctx context.Context, bridgeID string)
 }
 
 // BridgeDatabase provides access to the database of all bridges hosted by the cluster.

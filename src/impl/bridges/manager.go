@@ -17,24 +17,27 @@ import (
 
 // Manager implements the deps.BridgeManager interface using a local map.
 type Manager struct {
-	// bridges is the local storage for the bridges of this node.
-	bridges map[string]deps.Bridge
-	// bridgesMutex allows thread-safe usage of the bridges map.
+	// bridgesByID maps the bridges to their IDs.
+	bridgesByID map[string]deps.Bridge
+	// bridgesByClientID maps the bridges to their client IDs.
+	bridgesByClientID map[string][]deps.Bridge
+	// bridgesMutex allows thread-safe usage of the bridgesByID map.
 	bridgesMutex *sync.RWMutex
 
 	// wsUpgrader upgrades the connections to websocket.
 	wsUpgrader *websocket.Upgrader
 
-	// bridgeCount keeps the total count of bridges that this node is hosting.
+	// bridgeCount keeps the total count of bridgesByID that this node is hosting.
 	bridgeCount int
-	// bridgeCountPerClient keeps the total count of bridges per client that this node is hosting.
+	// bridgeCountPerClient keeps the total count of bridgesByID per client that this node is hosting.
 	bridgeCountPerClient map[string]int
 }
 
 // NewManager is a constructor for *Manager.
 func NewManager() *Manager {
 	return &Manager{
-		bridges:              map[string]deps.Bridge{},
+		bridgesByID:          map[string]deps.Bridge{},
+		bridgesByClientID:    map[string][]deps.Bridge{},
 		bridgesMutex:         &sync.RWMutex{},
 		wsUpgrader:           &websocket.Upgrader{},
 		bridgeCount:          0,
@@ -46,7 +49,7 @@ func (m *Manager) CreateBridge(ctx context.Context, params *models.BridgeCreateP
 	// Prerequisites.
 	conf, log := configs.Get(), logger.Get()
 
-	// Locking the bridges map and count for read-write operations.
+	// Locking the bridgesByID map and count for read-write operations.
 	m.bridgesMutex.Lock()
 	defer m.bridgesMutex.Unlock()
 
@@ -63,7 +66,7 @@ func (m *Manager) CreateBridge(ctx context.Context, params *models.BridgeCreateP
 	}
 
 	// Checking if the provided bridge ID is already is use.
-	if _, exists := m.bridges[params.BridgeID]; exists {
+	if _, exists := m.bridgesByID[params.BridgeID]; exists {
 		return nil, errors.New("bridge id is already in use")
 	}
 
@@ -87,7 +90,8 @@ func (m *Manager) CreateBridge(ctx context.Context, params *models.BridgeCreateP
 	go bridge.listen() // nolint:contextcheck // This function does not need a context parameter.
 
 	// Making the necessary entries.
-	m.bridges[params.BridgeID] = bridge
+	m.bridgesByID[params.BridgeID] = bridge
+	m.bridgesByClientID[params.ClientID] = append(m.bridgesByClientID[params.ClientID], bridge)
 	m.bridgeCount++
 	m.bridgeCountPerClient[params.ClientID]++
 
@@ -99,23 +103,31 @@ func (m *Manager) CreateBridge(ctx context.Context, params *models.BridgeCreateP
 	return bridge, nil
 }
 
-func (m *Manager) GetBridge(ctx context.Context, bridgeID string) deps.Bridge {
-	// Locking the bridges map for read operations.
+func (m *Manager) GetBridgeByID(ctx context.Context, bridgeID string) deps.Bridge {
+	// Locking the bridgesByID map for read operations.
 	m.bridgesMutex.RLock()
 	defer m.bridgesMutex.RUnlock()
 
-	return m.bridges[bridgeID]
+	return m.bridgesByID[bridgeID]
 }
 
-func (m *Manager) DeleteBridge(ctx context.Context, bridgeID string) {
+func (m *Manager) GetBridgesByClientID(ctx context.Context, clientID string) []deps.Bridge {
+	// Locking the bridgesByID map for read operations.
+	m.bridgesMutex.RLock()
+	defer m.bridgesMutex.RUnlock()
+
+	return m.bridgesByClientID[clientID]
+}
+
+func (m *Manager) DeleteBridgeByID(ctx context.Context, bridgeID string) {
 	log := logger.Get()
 
-	// Locking the bridges map for read-write operations.
+	// Locking the bridgesByID map for read-write operations.
 	m.bridgesMutex.Lock()
 	defer m.bridgesMutex.Unlock()
 
 	// Getting the required bridge.
-	bridge, exists := m.bridges[bridgeID]
+	bridge, exists := m.bridgesByID[bridgeID]
 	if !exists {
 		return
 	}
@@ -129,13 +141,29 @@ func (m *Manager) DeleteBridge(ctx context.Context, bridgeID string) {
 		log.Error(ctx, &logger.Entry{Payload: fmt.Errorf("error in bridge.Close call: %w", err)})
 	}
 
-	// Cleaning up the map.
-	delete(m.bridges, bridgeID)
+	// Cleaning up the bridgeID map.
+	delete(m.bridgesByID, bridgeID)
+
+	// Cleaning up the clientID map.
+	bridgesForClient := m.bridgesByClientID[clientID]
+	for i, bridge := range bridgesForClient {
+		if bridge.Identify().BridgeID == bridgeID {
+			bridgesForClient = append(bridgesForClient[0:i], bridgesForClient[i+1:]...)
+		}
+	}
+	// Updating the original clientID map.
+	m.bridgesByClientID[clientID] = bridgesForClient
+
+	// If the bridge count for this client is zero, we can remove their entry from the map.
+	if len(bridgesForClient) == 0 {
+		delete(m.bridgesByClientID, clientID)
+	}
+
 	m.bridgeCount--
 	m.bridgeCountPerClient[clientID]--
 
 	// If the bridge count for this client is zero, we can remove their entry from the map.
-	if count := m.bridgeCountPerClient[clientID]; count < 1 {
+	if count := m.bridgeCountPerClient[clientID]; count == 0 {
 		delete(m.bridgeCountPerClient, clientID)
 	}
 }

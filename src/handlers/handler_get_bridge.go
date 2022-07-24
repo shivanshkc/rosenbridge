@@ -61,7 +61,8 @@ func bridgeMessageHandler(ctx context.Context, bridge deps.Bridge, clientID stri
 	// Creating the response bridge message and populating the known fields.
 	responseMessage := &models.BridgeMessage{
 		// Body will be attached later.
-		Body:      nil,
+		Body: nil,
+		// The response of a OutgoingMessageReq is always a OutgoingMessageRes.
 		Type:      constants.MessageOutgoingRes,
 		RequestID: requestID,
 	}

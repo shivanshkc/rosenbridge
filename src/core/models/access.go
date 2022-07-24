@@ -41,8 +41,8 @@ type OutgoingMessageRes struct {
 type OutgoingMessageInternalReq struct {
 	// SenderID is the ID of client who sent this message.
 	SenderID string `json:"sender_id"`
-	// BridgeIDs is the list of bridge IDs that are intended to receive this message.
-	BridgeIDs []string `json:"bridge_ids"`
+	// Bridges is the list of bridge identity info(s) that are intended to receive this message.
+	Bridges []*BridgeIdentityInfo `json:"bridges"`
 	// Message is the main message content that needs to be delivered.
 	Message string `json:"message"`
 }

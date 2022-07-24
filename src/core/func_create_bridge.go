@@ -84,7 +84,7 @@ func CreateBridge(ctx context.Context, clientID string, w http.ResponseWriter, r
 	bridge.SetCloseHandler(func(err error) {
 		ctx := context.Background()
 		// Removing the bridge from the bridge manager.
-		bridgeMG.DeleteBridge(ctx, bridgeII.BridgeID)
+		bridgeMG.DeleteBridgeByID(ctx, bridgeII.BridgeID)
 		// Removing the bridge entry from the database.
 		// TODO: Log the error without importing the src/logger dependency.
 		_ = bridgeDB.DeleteBridgeForNode(ctx, bridgeII.BridgeID, ownAddr)
