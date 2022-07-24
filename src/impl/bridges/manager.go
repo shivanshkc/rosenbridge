@@ -26,22 +26,15 @@ type Manager struct {
 
 	// wsUpgrader upgrades the connections to websocket.
 	wsUpgrader *websocket.Upgrader
-
-	// bridgeCount keeps the total count of bridgesByID that this node is hosting.
-	bridgeCount int
-	// bridgeCountPerClient keeps the total count of bridgesByID per client that this node is hosting.
-	bridgeCountPerClient map[string]int
 }
 
 // NewManager is a constructor for *Manager.
 func NewManager() *Manager {
 	return &Manager{
-		bridgesByID:          map[string]deps.Bridge{},
-		bridgesByClientID:    map[string][]deps.Bridge{},
-		bridgesMutex:         &sync.RWMutex{},
-		wsUpgrader:           &websocket.Upgrader{},
-		bridgeCount:          0,
-		bridgeCountPerClient: map[string]int{},
+		bridgesByID:       map[string]deps.Bridge{},
+		bridgesByClientID: map[string][]deps.Bridge{},
+		bridgesMutex:      &sync.RWMutex{},
+		wsUpgrader:        &websocket.Upgrader{},
 	}
 }
 
@@ -53,15 +46,19 @@ func (m *Manager) CreateBridge(ctx context.Context, params *models.BridgeCreateP
 	m.bridgesMutex.Lock()
 	defer m.bridgesMutex.Unlock()
 
+	// Getting the bridge counts for easy comparison and logging.
+	bridgeCount := len(m.bridgesByID)
+	bridgeCountForClient := len(m.bridgesByClientID[params.ClientID])
+
 	// Checking if the bridge limit is reached.
-	if m.bridgeCount >= conf.Bridges.MaxBridgeLimit {
-		log.Warn(ctx, &logger.Entry{Payload: fmt.Sprintf("node has reached its bridge limit: %d", m.bridgeCount)})
+	if bridgeCount >= conf.Bridges.MaxBridgeLimit {
+		log.Warn(ctx, &logger.Entry{Payload: fmt.Sprintf("node has reached its bridge limit: %d", bridgeCount)})
 		return nil, errutils.TooManyBridges()
 	}
 	// Checking if the bridge limit per client has reached.
-	if m.bridgeCountPerClient[params.ClientID] >= conf.Bridges.MaxBridgeLimitPerClient {
+	if bridgeCountForClient >= conf.Bridges.MaxBridgeLimitPerClient {
 		log.Warn(ctx, &logger.Entry{Payload: fmt.Sprintf("node has reached its bridge limit for client: %s: %d",
-			params.ClientID, m.bridgeCount)})
+			params.ClientID, bridgeCountForClient)})
 		return nil, errutils.TooManyBridgesForClient()
 	}
 
@@ -71,7 +68,7 @@ func (m *Manager) CreateBridge(ctx context.Context, params *models.BridgeCreateP
 	}
 
 	// Upgrading the connection to websocket.
-	underlyingConn, err := m.wsUpgrader.Upgrade(params.Writer, params.Request, nil)
+	underlyingConn, err := m.wsUpgrader.Upgrade(params.Writer, params.Request, params.ResponseHeaders)
 	if err != nil {
 		return nil, fmt.Errorf("error in wsUpgrader.Upgrade call: %w", err)
 	}
@@ -92,13 +89,11 @@ func (m *Manager) CreateBridge(ctx context.Context, params *models.BridgeCreateP
 	// Making the necessary entries.
 	m.bridgesByID[params.BridgeID] = bridge
 	m.bridgesByClientID[params.ClientID] = append(m.bridgesByClientID[params.ClientID], bridge)
-	m.bridgeCount++
-	m.bridgeCountPerClient[params.ClientID]++
 
 	// Helpful logs.
-	log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("new bridge count: %d", m.bridgeCount)})
+	log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("new bridge count: %d", bridgeCount+1)})
 	log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("new bridge count for client: %s: %d",
-		params.ClientID, m.bridgeCount)})
+		params.ClientID, bridgeCountForClient+1)})
 
 	return bridge, nil
 }
@@ -132,7 +127,7 @@ func (m *Manager) DeleteBridgeByID(ctx context.Context, bridgeID string) {
 		return
 	}
 
-	// Getting the clientID for the bridge to update the bridge count for the client.
+	// Getting the clientID for the bridge to update the client ID map as well.
 	clientID := bridge.Identify().ClientID
 
 	// Closing the bridge.
@@ -146,9 +141,10 @@ func (m *Manager) DeleteBridgeByID(ctx context.Context, bridgeID string) {
 
 	// Cleaning up the clientID map.
 	bridgesForClient := m.bridgesByClientID[clientID]
-	for i, bridge := range bridgesForClient {
-		if bridge.Identify().BridgeID == bridgeID {
+	for i, br := range bridgesForClient {
+		if br.Identify().BridgeID == bridgeID {
 			bridgesForClient = append(bridgesForClient[0:i], bridgesForClient[i+1:]...)
+			break
 		}
 	}
 	// Updating the original clientID map.
@@ -159,11 +155,12 @@ func (m *Manager) DeleteBridgeByID(ctx context.Context, bridgeID string) {
 		delete(m.bridgesByClientID, clientID)
 	}
 
-	m.bridgeCount--
-	m.bridgeCountPerClient[clientID]--
+	// Getting the bridge counts for easy logging.
+	bridgeCount := len(m.bridgesByID)
+	bridgeCountForClient := len(m.bridgesByClientID[clientID])
 
-	// If the bridge count for this client is zero, we can remove their entry from the map.
-	if count := m.bridgeCountPerClient[clientID]; count == 0 {
-		delete(m.bridgeCountPerClient, clientID)
-	}
+	// Helpful logs.
+	log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("new bridge count: %d", bridgeCount)})
+	log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("new bridge count for client: %s: %d",
+		clientID, bridgeCountForClient)})
 }
