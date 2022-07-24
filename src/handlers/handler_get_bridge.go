@@ -50,7 +50,7 @@ func GetBridge(w http.ResponseWriter, r *http.Request) { // nolint:varnamelen //
 // nolint:funlen // Validation error handling makes this function larger. Making it short would be too much work!
 func bridgeMessageHandler(ctx context.Context, bridge deps.Bridge, clientID string, message *models.BridgeMessage) {
 	// Prerequisites.
-	log := logger.Get() // nolint:staticcheck // Wrongly reported.
+	log := logger.Get()
 
 	// Obtaining request ID safely.
 	var requestID string

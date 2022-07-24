@@ -15,8 +15,4 @@ const (
 const (
 	// CodeOK is the success code for all scenarios.
 	CodeOK = "OK"
-	// CodeOffline is the failure code for offline clients.
-	CodeOffline = "OFFLINE"
-	// CodeBridgeNotFound is the failure code when the intended bridge cannot be located.
-	CodeBridgeNotFound = "BRIDGE_NOT_FOUND"
 )
