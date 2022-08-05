@@ -31,7 +31,13 @@ func (d *Database) InsertBridge(ctx context.Context, doc *models.BridgeDoc) erro
 	return nil
 }
 
-func (d *Database) GetBridgesForClients(ctx context.Context, clientIDs []string) ([]*models.BridgeDoc, error) {
+func (d *Database) GetBridgesByIDs(ctx context.Context, bridgeIDs []string) ([]*models.BridgeDoc, []string, error) {
+	panic("implement me")
+}
+
+func (d *Database) GetBridgesByClientIDs(ctx context.Context, clientIDs []string) (
+	[]*models.BridgeDoc, []string, error,
+) {
 	callCtx, cancelFunc := mongodb.GetTimeoutContext(ctx)
 	defer cancelFunc()
 
@@ -41,16 +47,22 @@ func (d *Database) GetBridgesForClients(ctx context.Context, clientIDs []string)
 	// Database call.
 	cursor, err := mongodb.GetBridgesColl().Find(callCtx, filter)
 	if err != nil {
-		return nil, fmt.Errorf("error in GetBridgesColl().Find call: %w", err)
+		return nil, nil, fmt.Errorf("error in GetBridgesColl().Find call: %w", err)
 	}
 
 	// Getting documents from the cursor into the slice.
 	var docs []*models.BridgeDoc
 	if err := cursor.All(ctx, &docs); err != nil {
-		return nil, fmt.Errorf("error in cursor.All call: %w", err)
+		return nil, nil, fmt.Errorf("error in cursor.All call: %w", err)
 	}
 
-	return docs, nil
+	return docs, nil, nil
+}
+
+func (d *Database) GetBridges(ctx context.Context, identities []*models.BridgeIdentityInfo) (
+	[]*models.BridgeDoc, []*models.BridgeIdentityInfo, error,
+) {
+	panic("implement me")
 }
 
 func (d *Database) DeleteBridgeForNode(ctx context.Context, bridgeID string, nodeAddr string) error {

@@ -44,8 +44,21 @@ type BridgeManager interface {
 type BridgeDatabase interface {
 	// InsertBridge inserts a new bridge document into the database.
 	InsertBridge(ctx context.Context, doc *models.BridgeDoc) error
-	// GetBridgesForClients gets all bridges that belong to any of the provided clients.
-	GetBridgesForClients(ctx context.Context, clientIDs []string) ([]*models.BridgeDoc, error)
+
+	// GetBridgesByIDs gets all bridges that match any of the provided IDs.
+	//
+	// It returns the list of bridge documents, the list of problematic bridge IDs and error, if any.
+	GetBridgesByIDs(ctx context.Context, bridgeIDs []string) ([]*models.BridgeDoc, []string, error)
+	// GetBridgesByClientIDs gets all bridges that belong to any of the provided clients.
+	//
+	// It returns the list of bridge documents, the list of problematic client IDs and error, if any.
+	GetBridgesByClientIDs(ctx context.Context, clientIDs []string) ([]*models.BridgeDoc, []string, error)
+	// GetBridges gets all bridges that match any of the provided bridge ID and client ID combination.
+	//
+	// It returns the list of bridge documents, the list of problematic bridge identity info(s) and error, if any.
+	GetBridges(ctx context.Context, identities []*models.BridgeIdentityInfo) (
+		[]*models.BridgeDoc, []*models.BridgeIdentityInfo, error)
+
 	// DeleteBridgeForNode deletes the specified bridge for the specified node.
 	DeleteBridgeForNode(ctx context.Context, bridgeID string, nodeAddr string) error
 	// DeleteBridgesForNode deletes all specified bridges for the specified node.

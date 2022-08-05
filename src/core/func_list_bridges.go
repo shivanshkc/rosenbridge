@@ -14,9 +14,9 @@ func ListBridges(ctx context.Context, clientIDs []string) ([]*models.BridgeDoc, 
 	bridgeDB := deps.DepManager.GetBridgeDatabase()
 
 	// Querying the bridges.
-	bridges, err := bridgeDB.GetBridgesForClients(ctx, clientIDs)
+	bridges, _, err := bridgeDB.GetBridgesByClientIDs(ctx, clientIDs)
 	if err != nil {
-		return nil, fmt.Errorf("error in bridgeDB.GetBridgesForClients call: %w", err)
+		return nil, fmt.Errorf("error in bridgeDB.GetBridgesByClientIDs call: %w", err)
 	}
 
 	return bridges, nil
