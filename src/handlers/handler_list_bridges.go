@@ -11,7 +11,7 @@ import (
 )
 
 // ListBridges is the handler for the GET Bridge List API of Rosenbridge.
-func ListBridges(w http.ResponseWriter, r *http.Request) { // nolint:varnamelen // I like the "w" and "r" names.
+func ListBridges(w http.ResponseWriter, r *http.Request) { //nolint:varnamelen // I like the "w" and "r" names.
 	clientIDs := r.URL.Query()["client_id"]
 	// Checking the slice of client IDs.
 	if err := checkClientIDSlice(clientIDs); err != nil {

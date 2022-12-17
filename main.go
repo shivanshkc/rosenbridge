@@ -48,10 +48,18 @@ func main() {
 	deps.DepManager.SetBridgeDatabase(bridgeDB)
 	deps.DepManager.SetIntercom(cluster.NewIntercom())
 
+	// Creating the HTTP server.
+	server := &http.Server{
+		Addr:              conf.HTTPServer.Addr,
+		Handler:           handler(),
+		ReadHeaderTimeout: time.Minute,
+	}
+
 	// Logging the HTTP server details.
 	log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("http server starting at: %s", conf.HTTPServer.Addr)})
+
 	// Starting the HTTP server.
-	if err := http.ListenAndServe(conf.HTTPServer.Addr, handler()); err != nil {
+	if err := server.ListenAndServe(); err != nil {
 		panic("failed to start http server:" + err.Error())
 	}
 }
@@ -87,7 +95,7 @@ func discoveryAddressJob(ctx context.Context, resolver deps.DiscoveryAddressReso
 
 	// We'll run this job as per the configured number of times.
 	// If successful, this loop returns (and does not break).
-	for i := 0; i < conf.Discovery.MaxAddrResolutionAttempts; i++ { // nolint:varnamelen
+	for i := 0; i < conf.Discovery.MaxAddrResolutionAttempts; i++ { //nolint:varnamelen
 		log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("discovery addr resolution job: %d", i)})
 
 		// Resolving the address.

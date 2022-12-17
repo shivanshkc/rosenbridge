@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 )
 
 // AnyToBytes converts the provided input to a byte slice.
@@ -18,7 +17,7 @@ func AnyToBytes(input interface{}) ([]byte, error) {
 		return []byte(asserted), nil
 	case io.Reader:
 		// Reading all the data.
-		inputBytes, err := ioutil.ReadAll(asserted)
+		inputBytes, err := io.ReadAll(asserted)
 		if err != nil {
 			return nil, fmt.Errorf("error in ioutil.ReadAll call: %w", err)
 		}

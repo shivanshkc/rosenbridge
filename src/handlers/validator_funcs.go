@@ -131,7 +131,8 @@ func checkOutgoingMessageReq(req *models.OutgoingMessageReq) error {
 }
 
 // checkBridgeInfo checks if the provided *models.BridgeInfo is valid.
-// nolint:cyclop
+//
+//nolint:cyclop
 func checkBridgeInfo(info *models.BridgeInfo) error {
 	// BridgeInfo cannot be nil.
 	if info == nil {

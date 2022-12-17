@@ -36,7 +36,7 @@ func PostMessage(ctx context.Context, params *models.OutgoingMessageReq) (*model
 	// Looping over the request map to send the requests.
 	for nodeAddr, req := range requestMap {
 		var res *models.OutgoingMessageInternalRes
-		var err error // nolint:wsl // Declaration cuddling makes sense here.
+		var err error //nolint:wsl // Declaration cuddling makes sense here.
 
 		go func(nodeAddr string, req *models.OutgoingMessageInternalReq) {
 			switch nodeAddr {
@@ -72,15 +72,16 @@ func PostMessage(ctx context.Context, params *models.OutgoingMessageReq) (*model
 // in the resulting slice.
 //
 // The second return value holds all entries that could not be resolved due to some error.
-// nolint:funlen,gocognit,cyclop // In future, maybe we can break it down into simpler functions.
+//
+//nolint:funlen,gocognit,cyclop // In future, maybe we can break it down into simpler functions.
 func addNodeAddress(ctx context.Context, bridges []*models.BridgeInfo) ([]*models.BridgeInfo, []*models.BridgeStatus) {
 	// The final slice.
-	var info []*models.BridgeInfo       // nolint:prealloc // Cannot be pre-allocated.
-	var statuses []*models.BridgeStatus // nolint:wsl // Declaration cuddling makes sense here.
+	var info []*models.BridgeInfo       //nolint:prealloc // Cannot be pre-allocated.
+	var statuses []*models.BridgeStatus //nolint:wsl // Declaration cuddling makes sense here.
 
 	// These slices will be used to make the database calls.
 	var clientIDs, bridgeIDs []string
-	var bothIDs []*models.BridgeIdentityInfo // nolint:wsl // Declaration cuddling makes sense here.
+	var bothIDs []*models.BridgeIdentityInfo //nolint:wsl // Declaration cuddling makes sense here.
 
 	// Dependencies.
 	bridgeDB := deps.DepManager.GetBridgeDatabase()
@@ -118,8 +119,8 @@ func addNodeAddress(ctx context.Context, bridges []*models.BridgeInfo) ([]*model
 	eGroup, eCtx := errgroup.WithContext(ctx)
 
 	// These channels will receive data from the routines.
-	bridgeDocsChan := make(chan []*models.BridgeDoc, 3)  // nolint:gomnd // We have three ways to fetch bridges.
-	statusesChan := make(chan []*models.BridgeStatus, 3) // nolint:gomnd // We have three ways to fetch bridges.
+	bridgeDocsChan := make(chan []*models.BridgeDoc, 3)  //nolint:gomnd // We have three ways to fetch bridges.
+	statusesChan := make(chan []*models.BridgeStatus, 3) //nolint:gomnd // We have three ways to fetch bridges.
 
 	// Channels will be closed upon function return.
 	defer close(bridgeDocsChan)
@@ -137,7 +138,7 @@ func addNodeAddress(ctx context.Context, bridges []*models.BridgeInfo) ([]*model
 
 		// Database call.
 		docs, notFoundIDs, err := bridgeDB.GetBridgesByIDs(eCtx, bridgeIDs)
-		if err != nil { // nolint:gocritic // Switch statements do not apply here.
+		if err != nil { //nolint:gocritic // Switch statements do not apply here.
 			statusesChan <- getErrStatusesForBridgeIDs(bridgeIDs, err)
 		} else if notFoundIDs != nil {
 			statusesChan <- getErrStatusesForBridgeIDs(notFoundIDs, errutils.BridgeNotFound())
@@ -162,7 +163,7 @@ func addNodeAddress(ctx context.Context, bridges []*models.BridgeInfo) ([]*model
 
 		// Database call.
 		docs, notFoundIDs, err := bridgeDB.GetBridgesByClientIDs(eCtx, clientIDs)
-		if err != nil { // nolint:gocritic // Switch statements do not apply here.
+		if err != nil { //nolint:gocritic // Switch statements do not apply here.
 			statusesChan <- getErrStatusesForClientIDs(clientIDs, err)
 		} else if notFoundIDs != nil {
 			statusesChan <- getErrStatusesForClientIDs(notFoundIDs, errutils.BridgeNotFound())
@@ -187,7 +188,7 @@ func addNodeAddress(ctx context.Context, bridges []*models.BridgeInfo) ([]*model
 
 		// Database call.
 		docs, notFoundIDs, err := bridgeDB.GetBridges(eCtx, bothIDs)
-		if err != nil { // nolint:gocritic // Switch statements do not apply here.
+		if err != nil { //nolint:gocritic // Switch statements do not apply here.
 			statusesChan <- getErrStatusesForBothIDs(bothIDs, err)
 		} else if notFoundIDs != nil {
 			statusesChan <- getErrStatusesForBothIDs(notFoundIDs, errutils.BridgeNotFound())

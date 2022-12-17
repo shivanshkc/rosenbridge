@@ -22,7 +22,7 @@ import (
 // Once the bridge is created for the specified client, they are considered online and receives messages that are sent
 // to them using the PostMessage core function.
 //
-// nolint:funlen,varnamelen // Core functions are big. "w" and "r" names are fine here.
+//nolint:funlen,varnamelen // Core functions are big. "w" and "r" names are fine here.
 func CreateBridge(ctx context.Context, clientID string, w http.ResponseWriter, r *http.Request) (deps.Bridge, error) {
 	// Getting the dependencies.
 	resolver, bridgeDB, bridgeMG := deps.DepManager.GetDiscoveryAddressResolver(),

@@ -50,7 +50,7 @@ func AccessLogger(next http.Handler) http.Handler {
 		// Calculating response content length.
 		var resContentLength int64
 		if contentLength := writer.Header().Get("content-length"); contentLength != "" {
-			resContentLength, _ = strconv.ParseInt(contentLength, 10, 64) // nolint:gomnd
+			resContentLength, _ = strconv.ParseInt(contentLength, 10, 64)
 		}
 
 		// Logging response exit.

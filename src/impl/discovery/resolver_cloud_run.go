@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -45,10 +45,11 @@ func (r *ResolverCloudRun) Read() string {
 }
 
 // Resolve calls the required GCP APIs to figure out the service's address and persists it.
-// nolint:funlen // This function makes a number of parallel API calls. So, its length is acceptable.
+//
+//nolint:funlen // This function makes a number of parallel API calls. So, its length is acceptable.
 func (r *ResolverCloudRun) Resolve(ctx context.Context) error {
 	// The K_SERVICE env var is set automatically inside the GCP machine.
-	kService := os.Getenv("K_SERVICE") // nolint:revive // Leading k is acceptable here.
+	kService := os.Getenv("K_SERVICE") //nolint:revive // Leading k is acceptable here.
 	if kService == "" {
 		return errors.New("K_SERVICE env var is empty")
 	}
@@ -175,7 +176,7 @@ func (r *ResolverCloudRun) getProjectID(ctx context.Context) (string, error) {
 	}
 
 	// Reading the response body into a byte slice.
-	projectIDBytes, err := ioutil.ReadAll(response.Body)
+	projectIDBytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		return "", fmt.Errorf("error in ioutil.Readall call: %w", err)
 	}
@@ -211,7 +212,7 @@ func (r *ResolverCloudRun) getRegion(ctx context.Context) (string, error) {
 	}
 
 	// Reading the response body into a byte slice.
-	regionBytes, err := ioutil.ReadAll(response.Body)
+	regionBytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		return "", fmt.Errorf("error in ioutil.Readall call: %w", err)
 	}

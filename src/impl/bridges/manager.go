@@ -84,7 +84,7 @@ func (m *Manager) CreateBridge(ctx context.Context, params *models.BridgeCreateP
 	}
 
 	// Listening to messages from the client.
-	go bridge.listen() // nolint:contextcheck // This function does not need a context parameter.
+	go bridge.listen() //nolint:contextcheck // This function does not need a context parameter.
 
 	// Making the necessary entries.
 	m.bridgesByID[params.BridgeID] = bridge

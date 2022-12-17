@@ -29,5 +29,5 @@ func Write(writer http.ResponseWriter, status int, headers map[string]string, bo
 
 // Is2xx returns true if the provided status belongs to the 2xx family.
 func Is2xx(status int) bool {
-	return status%100 == 2 // nolint:gomnd // This is not a magic number!
+	return status%100 == 2 //nolint:gomnd // This is not a magic number!
 }

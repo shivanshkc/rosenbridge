@@ -11,7 +11,7 @@ import (
 )
 
 // PostMessage is the handler for the POST Message API of Rosenbridge.
-func PostMessage(w http.ResponseWriter, r *http.Request) { // nolint:varnamelen // I like the "w" and "r" names.
+func PostMessage(w http.ResponseWriter, r *http.Request) { //nolint:varnamelen // I like the "w" and "r" names.
 	// Closing the body upon function return.
 	defer func() { _ = r.Body.Close() }()
 

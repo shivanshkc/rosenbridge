@@ -11,7 +11,7 @@ import (
 )
 
 // PostMessageInternal is the handler for the POST Message - Internal API of Rosenbridge.
-func PostMessageInternal(w http.ResponseWriter, r *http.Request) { // nolint:varnamelen // I like the "w" and "r" names.
+func PostMessageInternal(w http.ResponseWriter, r *http.Request) { //nolint:varnamelen // I like the "w" and "r" names.
 	// Closing the body upon function return.
 	defer func() { _ = r.Body.Close() }()
 

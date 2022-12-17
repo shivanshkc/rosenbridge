@@ -16,7 +16,7 @@ import (
 )
 
 // GetBridge is the handler for the GET New Bridge API of Rosenbridge.
-func GetBridge(w http.ResponseWriter, r *http.Request) { // nolint:varnamelen // I like the "w" and "r" names.
+func GetBridge(w http.ResponseWriter, r *http.Request) { //nolint:varnamelen // I like the "w" and "r" names.
 	// Reading and validating client ID.
 	clientID := r.Header.Get("x-client-id")
 	// Validating the client ID.
@@ -47,7 +47,8 @@ func GetBridge(w http.ResponseWriter, r *http.Request) { // nolint:varnamelen //
 }
 
 // bridgeMessageHandler is the access layer for all bridge messages.
-// nolint:funlen // Validation error handling makes this function larger. Making it short would be too much work!
+//
+//nolint:funlen // Validation error handling makes this function larger. Making it short would be too much work!
 func bridgeMessageHandler(ctx context.Context, bridge deps.Bridge, clientID string, message *models.BridgeMessage) {
 	// Prerequisites.
 	log := logger.Get()

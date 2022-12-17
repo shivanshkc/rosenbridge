@@ -10,9 +10,5 @@ import (
 // under this node.
 func PostMessageInternal(ctx context.Context, params *models.OutgoingMessageInternalReq,
 ) (*models.OutgoingMessageInternalRes, error) {
-	for _, bridge := range params.Bridges {
-		if bridge.BridgeID != "" {
-
-		}
-	}
+	panic("not implemented")
 }
