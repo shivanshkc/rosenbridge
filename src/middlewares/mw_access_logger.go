@@ -1,14 +1,11 @@
 package middlewares
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/shivanshkc/rosenbridge/src/logger"
-	"github.com/shivanshkc/rosenbridge/src/utils/ctxutils"
-	"github.com/shivanshkc/rosenbridge/src/utils/errutils"
 	"github.com/shivanshkc/rosenbridge/src/utils/httputils"
 )
 
@@ -17,45 +14,31 @@ func AccessLogger(next http.Handler) http.Handler {
 	log := logger.Get()
 
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		ctx := request.Context()
-		ctxData := ctxutils.GetRequestContextData(ctx)
-
-		// An unlikely scenario, but no harm in checking.
-		if ctxData == nil {
-			log.Error(ctx, &logger.Entry{Payload: "No context data found for request"})
-			err := errutils.InternalServerError().WithReasonString("no context found")
-			httputils.WriteErrAndLog(ctx, writer, err, log)
-			return
-		}
+		ctx, entry := request.Context(), time.Now()
+		ctxData := httputils.GetReqCtx(ctx)
 
 		// Getting client's IP address for logging.
 		clientIP, err := httputils.GetClientIP(request)
 		if err != nil {
-			log.Error(ctx, &logger.Entry{Payload: fmt.Errorf("failed to get client IP address: %w", err)})
 			clientIP = "unknown"
 		}
-
 		// Getting own IP address (IP address of this machine) for logging.
 		ownIP, err := httputils.GetOwnIP()
 		if err != nil {
-			log.Error(ctx, &logger.Entry{Payload: fmt.Errorf("failed to get own IP address: %w", err)})
 			ownIP = "unknown"
 		}
 
 		// Logging request entry.
 		log.Info(ctx, &logger.Entry{
-			Timestamp: ctxData.EntryTime,
-			Payload:   fmt.Sprintf("ENTRY: Request: %s from: %s", ctxData.ID, clientIP),
+			Payload: ">> request in",
 			Request: &logger.NetworkRequest{
-				Protocol:     "http",
-				ID:           ctxData.ID,
-				Method:       request.Method,
-				URL:          request.URL.Path,
-				RequestSize:  request.ContentLength,
-				ResponseSize: 0,
-				Latency:      0,
-				ServerIP:     ownIP,
-				ClientIP:     clientIP,
+				Protocol:    "http",
+				ID:          ctxData.ID,
+				Method:      request.Method,
+				URL:         request.URL.Path,
+				RequestSize: request.ContentLength,
+				ServerIP:    ownIP,
+				ClientIP:    clientIP,
 			},
 		})
 
@@ -73,7 +56,7 @@ func AccessLogger(next http.Handler) http.Handler {
 		// Logging response exit.
 		log.Info(ctx, &logger.Entry{
 			Timestamp: time.Now(),
-			Payload:   fmt.Sprintf("EXIT: Request: %s from: %s", ctxData.ID, clientIP),
+			Payload:   "<< request out",
 			Request: &logger.NetworkRequest{
 				Status:       customWriter.statusCode,
 				Protocol:     "http",
@@ -82,7 +65,7 @@ func AccessLogger(next http.Handler) http.Handler {
 				URL:          request.URL.Path,
 				RequestSize:  request.ContentLength,
 				ResponseSize: resContentLength,
-				Latency:      time.Since(ctxData.EntryTime),
+				Latency:      time.Since(entry),
 				ServerIP:     ownIP,
 				ClientIP:     clientIP,
 			},

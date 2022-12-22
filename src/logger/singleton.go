@@ -13,8 +13,10 @@ var (
 
 // Get returns the Logger singleton.
 func Get() Logger {
+	// This statement only runs once.
 	loggerOnce.Do(func() {
 		loggerSingleton = newZapLogger()
 	})
+	// Returning the loaded configs.
 	return loggerSingleton
 }

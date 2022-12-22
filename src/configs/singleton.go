@@ -13,8 +13,10 @@ var (
 
 // Get provides the config singleton.
 func Get() *Model {
+	// This statement only executes once.
 	modelOnce.Do(func() {
 		modelSingleton = withViper()
 	})
+	// Returning the loaded configs.
 	return modelSingleton
 }

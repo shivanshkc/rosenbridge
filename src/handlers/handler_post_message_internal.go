@@ -9,24 +9,14 @@ import (
 	"github.com/shivanshkc/rosenbridge/src/utils/httputils"
 )
 
-// PostMessage is the handler for the POST Message API of Rosenbridge.
-func PostMessage(w http.ResponseWriter, r *http.Request) { //nolint:varnamelen // I like the "w" and "r" names.
+// PostMessageInternal is the handler for the POST Message - Internal API of Rosenbridge.
+func PostMessageInternal(w http.ResponseWriter, r *http.Request) { //nolint:varnamelen // I like the "w" and "r" names.
 	// Closing the body upon function return.
 	defer func() { _ = r.Body.Close() }()
 
-	// Unmarshalling the request body into an outgoing-message-req
-	outgoingMessageReq := &core.OutgoingMessageReq{}
-	if err := datautils.AnyToAny(r.Body, outgoingMessageReq); err != nil {
-		// Converting to HTTP error.
-		errHTTP := errutils.BadRequest().WithReasonError(err)
-		// Sending back the response.
-		httputils.Write(w, errHTTP.Status, nil, errHTTP)
-		// Ending execution.
-		return
-	}
-
-	// Validating the outgoing-message-req.
-	if err := checkOutgoingMessageReq(outgoingMessageReq); err != nil {
+	// Unmarshalling the request body into an outgoing-message-internal-req
+	reqBody := &core.OutgoingMessageInternalReq{}
+	if err := datautils.AnyToAny(r.Body, reqBody); err != nil {
 		// Converting to HTTP error.
 		errHTTP := errutils.BadRequest().WithReasonError(err)
 		// Sending back the response.
@@ -36,7 +26,7 @@ func PostMessage(w http.ResponseWriter, r *http.Request) { //nolint:varnamelen /
 	}
 
 	// Calling the core function.
-	responseBody, err := core.SendMessage(r.Context(), outgoingMessageReq)
+	responseBody, err := core.SendMessageInternal(r.Context(), reqBody)
 	if err != nil {
 		// Converting to HTTP error.
 		errHTTP := errutils.ToHTTPError(err)

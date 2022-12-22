@@ -8,28 +8,32 @@ type Model struct {
 		Name string `mapstructure:"name"`
 		// Version of the application.
 		Version string `mapstructure:"version"`
-		// BridgeLimitPerClient is the max number of bridges a client can have per node.
-		BridgeLimitPerClient int `mapstructure:"bridge_limit_per_client"`
-		// BridgeLimitTotal is the max number of bridges a node can host.
-		BridgeLimitTotal int `mapstructure:"bridge_limit_total"`
+		// SoloMode is false if Rosenbridge is running as a cluster.
+		SoloMode bool `mapstructure:"solo_mode"`
 	} `mapstructure:"application"`
 
 	// Auth is the model of authentication configs.
 	Auth struct {
-		// ClusterUsername is the username for internal basic auth.
-		ClusterUsername string `mapstructure:"cluster_username"`
-		// ClusterPassword is the password for internal basic auth.
-		ClusterPassword string `mapstructure:"cluster_password"`
+		// InternalUsername is the username for internal basic auth.
+		InternalUsername string `mapstructure:"internal_username"`
+		// InternalPassword is the password for internal basic auth.
+		InternalPassword string `mapstructure:"internal_password"`
 	} `mapstructure:"auth"`
+
+	// Bridges is the model of bridge-related configs.
+	Bridges struct {
+		// MaxBridgeLimit is the max number of bridges this node can host.
+		MaxBridgeLimit int `mapstructure:"max_bridge_limit"`
+		// MaxBridgeLimitPerClient is the max number of bridges this node can host per client.
+		MaxBridgeLimitPerClient int `mapstructure:"max_bridge_limit_per_client"`
+	} `mapstructure:"bridges"`
 
 	// HTTPServer is the model of the HTTP Server configs.
 	HTTPServer struct {
 		// Addr is the address of the HTTP server.
 		Addr string `mapstructure:"addr"`
-		// DiscoveryAddr is the address of this node that other nodes can use to reach it.
+		// DiscoveryAddr can be populated if it is known beforehand.
 		DiscoveryAddr string `mapstructure:"discovery_addr"`
-		// DiscoveryProtocol is the protocol to be used while contacting a cluster node (http or https).
-		DiscoveryProtocol string `mapstructure:"discovery_protocol"`
 	} `mapstructure:"http_server"`
 
 	// Logger is the model of the logger configs.

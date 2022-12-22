@@ -47,6 +47,7 @@ func getClientOnce() *mongo.Client {
 	// Creating timeout context for the "Connect" call.
 	timeoutDuration := time.Duration(conf.Mongo.OperationTimeoutSec) * time.Second
 	connectCtx, connectCancelFunc := context.WithTimeout(context.Background(), timeoutDuration)
+	// Cancelling context upon function return.
 	defer connectCancelFunc()
 
 	// Attempting connection with MongoDB.

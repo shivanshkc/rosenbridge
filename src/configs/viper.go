@@ -12,7 +12,7 @@ const (
 )
 
 // configsPaths is the list of locations that will be searched for the configs file.
-var configPaths = []string{"/etc/", "/etc/rosenbridge/", "/project/", "."}
+var configPaths = []string{"/etc/", "/etc/rosenbridge/", "."}
 
 // withViper loads the configs using spf13/viper.
 // Panic is allowed here because configs are crucial to the application.

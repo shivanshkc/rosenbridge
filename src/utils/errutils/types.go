@@ -13,6 +13,7 @@ func (h *HTTPError) Error() string {
 	if h.Reason != "" {
 		return h.Reason
 	}
+	// Returning code if reason is empty.
 	return h.Code
 }
 

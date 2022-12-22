@@ -1,25 +1,19 @@
 package handlers
 
 import (
-	"encoding/json"
+	"context"
 	"fmt"
 
 	"github.com/shivanshkc/rosenbridge/src/core"
+	"github.com/shivanshkc/rosenbridge/src/logger"
 )
 
-// interface2OutgoingMessageReq converts the provided interface value to *core.OutgoingMessageReq.
-func interface2OutgoingMessageReq(value interface{}) (*core.OutgoingMessageReq, error) {
-	// Marshalling the value to byte slice for later unmarshalling.
-	valueBytes, err := json.Marshal(value)
-	if err != nil {
-		return nil, fmt.Errorf("error in json.Marshal call: %w", err)
-	}
+// sendMessageAndLog sends the provided message over the bridge and logs any errors.
+func sendMessageAndLog(ctx context.Context, bridge core.Bridge, message *core.BridgeMessage) {
+	log := logger.Get()
 
-	// Unmarshalling the value bytes into a *core.OutgoingMessageReq type.
-	omr := &core.OutgoingMessageReq{}
-	if err := json.Unmarshal(valueBytes, omr); err != nil {
-		return nil, fmt.Errorf("error in json.Unmarshal call: %w", err)
+	// Sending the response.
+	if err := bridge.SendMessage(ctx, message); err != nil {
+		log.Error(ctx, &logger.Entry{Payload: fmt.Errorf("error in bridge.SendMessage call: %w", err)})
 	}
-
-	return omr, nil
 }

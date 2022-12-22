@@ -14,6 +14,7 @@ type responseWriterWithCode struct {
 	statusCode int
 }
 
+// WriteHeader persists the provided statusCode and then simply calls the underlying WriteHeader.
 func (r *responseWriterWithCode) WriteHeader(statusCode int) {
 	r.statusCode = statusCode
 	r.ResponseWriter.WriteHeader(statusCode)
@@ -31,5 +32,6 @@ func (r *responseWriterWithCode) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 	if err != nil {
 		return nil, nil, fmt.Errorf("error in wrapped hijacker: %w", err)
 	}
+
 	return conn, readWriter, nil
 }

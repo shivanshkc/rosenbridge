@@ -22,13 +22,12 @@ func recoverRequestPanic(writer http.ResponseWriter, request *http.Request) {
 	// Prerequisites.
 	ctx, log := request.Context(), logger.Get()
 
-	err := recover()
-	if err == nil {
-		return // No panic happened.
+	// If panic occurred.
+	if err := recover(); err != nil {
+		errHTTP := errutils.ToHTTPError(err)
+		// Logging the panic for debug purposes.
+		log.Error(ctx, &logger.Entry{Payload: fmt.Errorf("panic occurred: %w", errHTTP)})
+		// Sending sanitized response to the user.
+		httputils.Write(writer, errHTTP.Status, nil, errHTTP)
 	}
-
-	// Logging the panic for debug purposes.
-	log.Error(ctx, &logger.Entry{Payload: fmt.Errorf("panic occurred: %+v", err)})
-	// Sending sanitized response to the user.
-	httputils.WriteErrAndLog(ctx, writer, errutils.ToHTTPError(err), log)
 }

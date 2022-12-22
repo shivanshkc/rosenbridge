@@ -40,6 +40,7 @@ func (z *zapLogger) Close() error {
 	if err := z.client.Sync(); err != nil {
 		return fmt.Errorf("failed to close the logger: %w", err)
 	}
+	// Closed successfully.
 	return nil
 }
 
@@ -51,19 +52,19 @@ func newZapLogger() *zapLogger {
 	// Converting the Log level from string to zapcore.Level.
 	zapLevel, ok := zapLevelFromString(conf.Logger.Level)
 	if !ok {
-		panic(fmt.Errorf("unknown log level: %s", conf.Logger.Level))
+		panic(fmt.Sprintf("unknown log level: %s", conf.Logger.Level))
 	}
-
-	// These are the various logging destinations. More destinations such as Kafka can be added here.
-	syncers := []zapcore.WriteSyncer{os.Stdout}
 
 	// This function lets Zap know which Level to log at.
 	levelEnabler := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 		return lvl >= zapLevel
 	})
 
+	// These are the various logging destinations. More destinations such as Kafka can be added here.
+	syncers := []zapcore.WriteSyncer{os.Stdout}
 	// Creating cores for the logger. See: https://pkg.go.dev/go.uber.org/zap#example-package-AdvancedConfiguration
 	cores := make([]zapcore.Core, len(syncers))
+	// Looping over all syncers and creating cores.
 	for idx, dest := range syncers {
 		encoder := zapcore.NewJSONEncoder(zap.NewProductionEncoderConfig())
 		cores[idx] = zapcore.NewCore(encoder, zapcore.Lock(dest), levelEnabler)
@@ -73,6 +74,7 @@ func newZapLogger() *zapLogger {
 	// We can turn it to true by using 'zap.NewDevelopment' instead of 'zap.New'.
 	// If the development property is true, any DPanic level log calls will panic.
 	client := zap.New(zapcore.NewTee(cores...))
+	// Forming the zap implementation.
 	return &zapLogger{client: client}
 }
 
@@ -88,8 +90,6 @@ func zapLevelFromString(level string) (zapcore.Level, bool) {
 		return zap.WarnLevel, true
 	case "error":
 		return zap.ErrorLevel, true
-	case "fatal":
-		return zap.DPanicLevel, true
 	default:
 		return zap.DPanicLevel, false
 	}
@@ -97,15 +97,15 @@ func zapLevelFromString(level string) (zapcore.Level, bool) {
 
 // zapFieldsFromEntry processes the entry and converts it to a slice of Zap Fields.
 func zapFieldsFromEntry(ctx context.Context, entry *Entry) []zap.Field {
-	// Adding more information to the log entry.
-	entry.addFromContext(ctx).addCaller(2).fill()
-
+	// Adding missing information to the log entry.
+	entry.populate(ctx)
+	// Creating zap fields out of the Entry.
 	return []zap.Field{
 		zap.Any("payload", entry.Payload),
 		zap.Time("timestamp", entry.Timestamp),
-		zap.Any("caller", entry.Caller),
 		zap.Any("labels", entry.Labels),
 		zap.Any("request", entry.Request),
+		zap.Any("caller", entry.Caller),
 		zap.String("trace", entry.Trace),
 	}
 }

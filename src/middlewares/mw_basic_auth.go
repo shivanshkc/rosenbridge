@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/shivanshkc/rosenbridge/src/configs"
-	"github.com/shivanshkc/rosenbridge/src/logger"
 	"github.com/shivanshkc/rosenbridge/src/utils/errutils"
 	"github.com/shivanshkc/rosenbridge/src/utils/httputils"
 )
@@ -14,19 +13,19 @@ import (
 // InternalBasicAuth middleware applies basic auth to the target routes.
 func InternalBasicAuth(next http.Handler) http.Handler {
 	// Prerequisites.
-	conf, log := configs.Get(), logger.Get()
+	conf := configs.Get()
 
 	// Calculating the expected Username and Password.
-	expectedUsernameHash := sha256.Sum256([]byte(conf.Auth.ClusterUsername))
-	expectedPasswordHash := sha256.Sum256([]byte(conf.Auth.ClusterPassword))
+	expectedUsernameHash := sha256.Sum256([]byte(conf.Auth.InternalUsername))
+	expectedPasswordHash := sha256.Sum256([]byte(conf.Auth.InternalPassword))
 
 	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		ctx := request.Context()
-
 		// Retrieving user provided username and password.
 		username, password, ok := request.BasicAuth()
 		if !ok {
-			httputils.WriteErrAndLog(ctx, writer, errutils.Unauthorized(), log)
+			// Returning 401.
+			err := errutils.Unauthorized()
+			httputils.Write(writer, err.Status, nil, err)
 			return
 		}
 
@@ -40,7 +39,9 @@ func InternalBasicAuth(next http.Handler) http.Handler {
 
 		// If they don't match, it's 401.
 		if !usernameMatch || !passwordMatch {
-			httputils.WriteErrAndLog(ctx, writer, errutils.Unauthorized(), log)
+			// Returning 401.
+			err := errutils.Unauthorized()
+			httputils.Write(writer, err.Status, nil, err)
 			return
 		}
 
