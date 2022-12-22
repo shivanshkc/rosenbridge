@@ -1,4 +1,4 @@
-package constants
+package core
 
 // Message types.
 const (
@@ -15,4 +15,10 @@ const (
 const (
 	// CodeOK is the success code for all scenarios.
 	CodeOK = "OK"
+	// CodeOffline indicates that the concerned client is offline.
+	CodeOffline = "OFFLINE"
+	// CodeBridgeNotFound is sent when the required bridge does not exist.
+	CodeBridgeNotFound = "BRIDGE_NOT_FOUND"
+	// CodeUnknown indicates that an unknown error occurred.
+	CodeUnknown = "UNKNOWN"
 )

@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/shivanshkc/rosenbridge/src/core/models"
+	"github.com/shivanshkc/rosenbridge/src/core"
 	"github.com/shivanshkc/rosenbridge/src/logger"
 	"github.com/shivanshkc/rosenbridge/src/utils/datautils"
 	"github.com/shivanshkc/rosenbridge/src/utils/errutils"
@@ -16,23 +16,23 @@ import (
 // BridgeWS implements the deps.Bridge interface using websockets.
 type BridgeWS struct {
 	// identityInfo encapsulates the identity attributes of the bridge.
-	identityInfo *models.BridgeIdentityInfo
+	identityInfo *core.BridgeIdentityInfo
 	// underlyingConn is the low level connection object for the bridge.
 	underlyingConn *websocket.Conn
 
 	// messageHandler handles messages from client.
-	messageHandler func(message *models.BridgeMessage)
+	messageHandler func(message *core.BridgeMessage)
 	// closeHandler handles connection closures.
 	closeHandler func(err error)
 	// errorHandler handles any errors in connection.
 	errorHandler func(err error)
 }
 
-func (b *BridgeWS) Identify() *models.BridgeIdentityInfo {
+func (b *BridgeWS) Identify() *core.BridgeIdentityInfo {
 	return b.identityInfo
 }
 
-func (b *BridgeWS) SendMessage(message *models.BridgeMessage) error {
+func (b *BridgeWS) SendMessage(ctx context.Context, message *core.BridgeMessage) error {
 	// Converting the message to byte slice.
 	messageBytes, err := datautils.AnyToBytes(message)
 	if err != nil {
@@ -47,7 +47,7 @@ func (b *BridgeWS) SendMessage(message *models.BridgeMessage) error {
 	return nil
 }
 
-func (b *BridgeWS) SetMessageHandler(handler func(message *models.BridgeMessage)) {
+func (b *BridgeWS) SetMessageHandler(handler func(message *core.BridgeMessage)) {
 	b.messageHandler = handler
 }
 
@@ -90,7 +90,7 @@ func (b *BridgeWS) listen() {
 			b.closeHandler(err)
 			return
 		case websocket.TextMessage:
-			bMessage := &models.BridgeMessage{}
+			bMessage := &core.BridgeMessage{}
 			// Converting the message byte slice into a bridge message.
 			if err := json.Unmarshal(messageBytes, bMessage); err != nil {
 				// Creating a bad request error for the client.

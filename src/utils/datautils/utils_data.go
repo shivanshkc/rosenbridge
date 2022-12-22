@@ -19,7 +19,7 @@ func AnyToBytes(input interface{}) ([]byte, error) {
 		// Reading all the data.
 		inputBytes, err := io.ReadAll(asserted)
 		if err != nil {
-			return nil, fmt.Errorf("error in ioutil.ReadAll call: %w", err)
+			return nil, fmt.Errorf("error in io.ReadAll call: %w", err)
 		}
 		// Conversion successful.
 		return inputBytes, nil

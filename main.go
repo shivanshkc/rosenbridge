@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/shivanshkc/rosenbridge/src/configs"
-	"github.com/shivanshkc/rosenbridge/src/core/deps"
+	"github.com/shivanshkc/rosenbridge/src/core"
 	"github.com/shivanshkc/rosenbridge/src/handlers"
 	"github.com/shivanshkc/rosenbridge/src/impl/bridges"
 	"github.com/shivanshkc/rosenbridge/src/impl/cluster"
@@ -30,7 +30,7 @@ func main() {
 	go createDatabaseIndexes(ctx, bridgeDB)
 
 	// Instantiating the discovery address resolver to resolve the address at the time of service startup.
-	var resolver deps.DiscoveryAddressResolver
+	var resolver core.DiscoveryAddressResolver
 	// Judging which resolver implementation to use.
 	switch conf.Discovery.DiscoveryAddr {
 	case "":
@@ -43,10 +43,10 @@ func main() {
 	go discoveryAddressJob(ctx, resolver)
 
 	// Setting core dependencies.
-	deps.DepManager.SetDiscoveryAddressResolver(resolver)
-	deps.DepManager.SetBridgeManager(bridges.NewManager())
-	deps.DepManager.SetBridgeDatabase(bridgeDB)
-	deps.DepManager.SetIntercom(cluster.NewIntercom())
+	core.Discover = resolver
+	core.BridgeMG = bridges.NewManager()
+	core.BridgeDB = bridgeDB
+	core.Intercom = cluster.NewIntercom()
 
 	// Creating the HTTP server.
 	server := &http.Server{
@@ -86,7 +86,7 @@ func createDatabaseIndexes(ctx context.Context, bridgeDB *bridges.Database) {
 }
 
 // discoveryAddressJob runs a periodic job that tries to resolve the discovery address of the service.
-func discoveryAddressJob(ctx context.Context, resolver deps.DiscoveryAddressResolver) {
+func discoveryAddressJob(ctx context.Context, resolver core.DiscoveryAddressResolver) {
 	// Prerequisites.
 	conf, log := configs.Get(), logger.Get()
 
@@ -99,9 +99,9 @@ func discoveryAddressJob(ctx context.Context, resolver deps.DiscoveryAddressReso
 		log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("discovery addr resolution job: %d", i)})
 
 		// Resolving the address.
-		err := resolver.Resolve(ctx)
+		addr, err := resolver.Read(ctx)
 		if err == nil {
-			log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("discovery addr resolved: %s", resolver.Read())})
+			log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("discovery addr resolved: %s", addr)})
 			return
 		}
 
@@ -132,8 +132,7 @@ func handler() http.Handler {
 
 	// External routes.
 	external.HandleFunc("", handlers.GetIntro).Methods(http.MethodGet, http.MethodOptions)
-	external.HandleFunc("/bridge", handlers.ListBridges).Methods(http.MethodGet, http.MethodOptions)
-	external.HandleFunc("/bridge/new", handlers.GetBridge).Methods(http.MethodGet, http.MethodOptions)
+	external.HandleFunc("/bridge", handlers.GetBridge).Methods(http.MethodGet, http.MethodOptions)
 	external.HandleFunc("/message", handlers.PostMessage).Methods(http.MethodPost, http.MethodOptions)
 	// Internal routes.
 	internal.HandleFunc("/message", handlers.PostMessageInternal).Methods(http.MethodPost, http.MethodOptions)

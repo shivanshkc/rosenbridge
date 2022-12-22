@@ -6,9 +6,6 @@ import (
 	"net/http"
 
 	"github.com/shivanshkc/rosenbridge/src/core"
-	"github.com/shivanshkc/rosenbridge/src/core/constants"
-	"github.com/shivanshkc/rosenbridge/src/core/deps"
-	"github.com/shivanshkc/rosenbridge/src/core/models"
 	"github.com/shivanshkc/rosenbridge/src/logger"
 	"github.com/shivanshkc/rosenbridge/src/utils/datautils"
 	"github.com/shivanshkc/rosenbridge/src/utils/errutils"
@@ -41,7 +38,7 @@ func GetBridge(w http.ResponseWriter, r *http.Request) { //nolint:varnamelen // 
 	}
 
 	// Setting the message handler for the bridge.
-	bridge.SetMessageHandler(func(message *models.BridgeMessage) {
+	bridge.SetMessageHandler(func(message *core.BridgeMessage) {
 		bridgeMessageHandler(context.Background(), bridge, clientID, message)
 	})
 }
@@ -49,7 +46,7 @@ func GetBridge(w http.ResponseWriter, r *http.Request) { //nolint:varnamelen // 
 // bridgeMessageHandler is the access layer for all bridge messages.
 //
 //nolint:funlen // Validation error handling makes this function larger. Making it short would be too much work!
-func bridgeMessageHandler(ctx context.Context, bridge deps.Bridge, clientID string, message *models.BridgeMessage) {
+func bridgeMessageHandler(ctx context.Context, bridge core.Bridge, clientID string, message *core.BridgeMessage) {
 	// Prerequisites.
 	log := logger.Get()
 
@@ -60,11 +57,11 @@ func bridgeMessageHandler(ctx context.Context, bridge deps.Bridge, clientID stri
 	}
 
 	// Creating the response bridge message and populating the known fields.
-	responseMessage := &models.BridgeMessage{
+	responseMessage := &core.BridgeMessage{
 		// Body will be attached later.
 		Body: nil,
 		// The response of a OutgoingMessageReq is always a OutgoingMessageRes.
-		Type:      constants.MessageOutgoingRes,
+		Type:      core.MessageOutgoingRes,
 		RequestID: requestID,
 	}
 
@@ -79,7 +76,7 @@ func bridgeMessageHandler(ctx context.Context, bridge deps.Bridge, clientID stri
 	}
 
 	// Converting the message body into an outgoing-message-request.
-	outMessageReq := &models.OutgoingMessageReq{}
+	outMessageReq := &core.OutgoingMessageReq{}
 	if err := datautils.AnyToAny(message.Body, outMessageReq); err != nil {
 		// Attaching the error as the body.
 		responseMessage.Body = errutils.BadRequest().WithReasonError(err)
@@ -103,9 +100,9 @@ func bridgeMessageHandler(ctx context.Context, bridge deps.Bridge, clientID stri
 	}
 
 	// Calling the core function.
-	responseBody, err := core.PostMessage(ctx, outMessageReq)
+	responseBody, err := core.SendMessage(ctx, outMessageReq)
 	if err != nil {
-		log.Error(ctx, &logger.Entry{Payload: fmt.Errorf("error in core.PostMessage call: %w", err)})
+		log.Error(ctx, &logger.Entry{Payload: fmt.Errorf("error in core.SendMessage call: %w", err)})
 		// Attaching the error as the body.
 		responseMessage.Body = errutils.ToHTTPError(err)
 		// Sending back the error response.

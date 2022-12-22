@@ -9,7 +9,7 @@ import (
 	"sync"
 
 	"github.com/shivanshkc/rosenbridge/src/configs"
-	"github.com/shivanshkc/rosenbridge/src/core/models"
+	"github.com/shivanshkc/rosenbridge/src/core"
 	"github.com/shivanshkc/rosenbridge/src/utils/httputils"
 )
 
@@ -22,31 +22,20 @@ type Intercom struct {
 }
 
 // NewIntercom is a constructor for *Intercom.
-func NewIntercom() *Intercom {
+func NewIntercom() core.IntercomService {
 	return &Intercom{
 		httpClients:      map[string]*http.Client{},
 		httpClientsMutex: &sync.RWMutex{},
 	}
 }
 
-func (i *Intercom) PostMessageInternal(ctx context.Context, nodeAddr string, params *models.OutgoingMessageInternalReq,
-) (*models.OutgoingMessageInternalRes, error) {
+func (i *Intercom) SendMessageInternal(ctx context.Context, nodeAddr string, params *core.OutgoingMessageInternalReq,
+) (*core.OutgoingMessageInternalRes, error) {
 	// Prerequisites.
 	conf := configs.Get()
 
 	// Obtaining request ID from the provided context.
 	requestID := httputils.GetReqCtx(ctx).ID
-
-	// Locking the httpClients map for read-write operations.
-	i.httpClientsMutex.Lock()
-	defer i.httpClientsMutex.Unlock()
-
-	// Checking if there's already a http client for this node, otherwise creating a new one.
-	httpClient, exists := i.httpClients[nodeAddr]
-	if !exists {
-		httpClient = &http.Client{}
-		i.httpClients[nodeAddr] = httpClient
-	}
 
 	// Converting the body into a byte slice.
 	reqBytes, err := json.Marshal(params)
@@ -68,6 +57,19 @@ func (i *Intercom) PostMessageInternal(ctx context.Context, nodeAddr string, par
 	// Setting the cluster basic auth params.
 	request.SetBasicAuth(conf.Auth.InternalUsername, conf.Auth.InternalPassword)
 
+	// Locking the httpClients map for read-write operations.
+	i.httpClientsMutex.Lock()
+
+	// Checking if there's already a http client for this node, otherwise creating a new one.
+	httpClient, exists := i.httpClients[nodeAddr]
+	if !exists {
+		httpClient = &http.Client{}
+		i.httpClients[nodeAddr] = httpClient
+	}
+
+	// Unlocking the httpClients map.
+	i.httpClientsMutex.Unlock()
+
 	// Executing the request.
 	response, err := httpClient.Do(request)
 	if err != nil {
@@ -77,7 +79,7 @@ func (i *Intercom) PostMessageInternal(ctx context.Context, nodeAddr string, par
 	defer func() { _ = response.Body.Close() }()
 
 	// Unmarshalling the response body into OutgoingMessageInternalRes.
-	responseBody := &models.OutgoingMessageInternalRes{}
+	responseBody := &core.OutgoingMessageInternalRes{}
 	if err := json.NewDecoder(response.Body).Decode(responseBody); err != nil {
 		return nil, fmt.Errorf("error in json.NewDecoder(...).Decode call: %w", err)
 	}

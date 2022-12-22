@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/shivanshkc/rosenbridge/src/core"
-	"github.com/shivanshkc/rosenbridge/src/core/models"
 	"github.com/shivanshkc/rosenbridge/src/utils/datautils"
 	"github.com/shivanshkc/rosenbridge/src/utils/errutils"
 	"github.com/shivanshkc/rosenbridge/src/utils/httputils"
@@ -16,7 +15,7 @@ func PostMessageInternal(w http.ResponseWriter, r *http.Request) { //nolint:varn
 	defer func() { _ = r.Body.Close() }()
 
 	// Unmarshalling the request body into an outgoing-message-internal-req
-	reqBody := &models.OutgoingMessageInternalReq{}
+	reqBody := &core.OutgoingMessageInternalReq{}
 	if err := datautils.AnyToAny(r.Body, reqBody); err != nil {
 		// Converting to HTTP error.
 		errHTTP := errutils.BadRequest().WithReasonError(err)
@@ -27,7 +26,7 @@ func PostMessageInternal(w http.ResponseWriter, r *http.Request) { //nolint:varn
 	}
 
 	// Calling the core function.
-	responseBody, err := core.PostMessageInternal(r.Context(), reqBody)
+	responseBody, err := core.SendMessageInternal(r.Context(), reqBody)
 	if err != nil {
 		// Converting to HTTP error.
 		errHTTP := errutils.ToHTTPError(err)

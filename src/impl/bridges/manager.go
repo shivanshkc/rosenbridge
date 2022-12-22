@@ -7,8 +7,7 @@ import (
 	"sync"
 
 	"github.com/shivanshkc/rosenbridge/src/configs"
-	"github.com/shivanshkc/rosenbridge/src/core/deps"
-	"github.com/shivanshkc/rosenbridge/src/core/models"
+	"github.com/shivanshkc/rosenbridge/src/core"
 	"github.com/shivanshkc/rosenbridge/src/logger"
 	"github.com/shivanshkc/rosenbridge/src/utils/errutils"
 
@@ -18,9 +17,9 @@ import (
 // Manager implements the deps.BridgeManager interface using a local map.
 type Manager struct {
 	// bridgesByID maps the bridges to their IDs.
-	bridgesByID map[string]deps.Bridge
+	bridgesByID map[string]core.Bridge
 	// bridgesByClientID maps the bridges to their client IDs.
-	bridgesByClientID map[string][]deps.Bridge
+	bridgesByClientID map[string][]core.Bridge
 	// bridgesMutex allows thread-safe usage of the bridgesByID map.
 	bridgesMutex *sync.RWMutex
 
@@ -31,14 +30,14 @@ type Manager struct {
 // NewManager is a constructor for *Manager.
 func NewManager() *Manager {
 	return &Manager{
-		bridgesByID:       map[string]deps.Bridge{},
-		bridgesByClientID: map[string][]deps.Bridge{},
+		bridgesByID:       map[string]core.Bridge{},
+		bridgesByClientID: map[string][]core.Bridge{},
 		bridgesMutex:      &sync.RWMutex{},
 		wsUpgrader:        &websocket.Upgrader{},
 	}
 }
 
-func (m *Manager) CreateBridge(ctx context.Context, params *models.BridgeCreateParams) (deps.Bridge, error) {
+func (m *Manager) CreateBridge(ctx context.Context, params *core.BridgeCreateParams) (core.Bridge, error) {
 	// Prerequisites.
 	conf, log := configs.Get(), logger.Get()
 
@@ -78,7 +77,7 @@ func (m *Manager) CreateBridge(ctx context.Context, params *models.BridgeCreateP
 		identityInfo:   params.BridgeIdentityInfo,
 		underlyingConn: underlyingConn,
 		// These handlers can be overridden later in the access layer.
-		messageHandler: func(message *models.BridgeMessage) {},
+		messageHandler: func(message *core.BridgeMessage) {},
 		closeHandler:   func(err error) {},
 		errorHandler:   func(err error) {},
 	}
@@ -98,7 +97,7 @@ func (m *Manager) CreateBridge(ctx context.Context, params *models.BridgeCreateP
 	return bridge, nil
 }
 
-func (m *Manager) GetBridgeByID(ctx context.Context, bridgeID string) deps.Bridge {
+func (m *Manager) GetBridgeByID(ctx context.Context, bridgeID string) core.Bridge {
 	// Locking the bridgesByID map for read operations.
 	m.bridgesMutex.RLock()
 	defer m.bridgesMutex.RUnlock()
@@ -106,7 +105,7 @@ func (m *Manager) GetBridgeByID(ctx context.Context, bridgeID string) deps.Bridg
 	return m.bridgesByID[bridgeID]
 }
 
-func (m *Manager) GetBridgesByClientID(ctx context.Context, clientID string) []deps.Bridge {
+func (m *Manager) GetBridgesByClientID(ctx context.Context, clientID string) []core.Bridge {
 	// Locking the bridgesByID map for read operations.
 	m.bridgesMutex.RLock()
 	defer m.bridgesMutex.RUnlock()

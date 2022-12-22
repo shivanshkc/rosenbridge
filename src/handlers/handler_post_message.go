@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/shivanshkc/rosenbridge/src/core"
-	"github.com/shivanshkc/rosenbridge/src/core/models"
 	"github.com/shivanshkc/rosenbridge/src/utils/datautils"
 	"github.com/shivanshkc/rosenbridge/src/utils/errutils"
 	"github.com/shivanshkc/rosenbridge/src/utils/httputils"
@@ -16,7 +15,7 @@ func PostMessage(w http.ResponseWriter, r *http.Request) { //nolint:varnamelen /
 	defer func() { _ = r.Body.Close() }()
 
 	// Unmarshalling the request body into an outgoing-message-req
-	outgoingMessageReq := &models.OutgoingMessageReq{}
+	outgoingMessageReq := &core.OutgoingMessageReq{}
 	if err := datautils.AnyToAny(r.Body, outgoingMessageReq); err != nil {
 		// Converting to HTTP error.
 		errHTTP := errutils.BadRequest().WithReasonError(err)
@@ -37,7 +36,7 @@ func PostMessage(w http.ResponseWriter, r *http.Request) { //nolint:varnamelen /
 	}
 
 	// Calling the core function.
-	responseBody, err := core.PostMessage(r.Context(), outgoingMessageReq)
+	responseBody, err := core.SendMessage(r.Context(), outgoingMessageReq)
 	if err != nil {
 		// Converting to HTTP error.
 		errHTTP := errutils.ToHTTPError(err)

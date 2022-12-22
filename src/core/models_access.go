@@ -1,4 +1,4 @@
-package models
+package core
 
 // IncomingMessageReq represents an incoming message for a client.
 //
@@ -16,10 +16,13 @@ type IncomingMessageReq struct {
 type OutgoingMessageReq struct {
 	// SenderID is the ID of client who sent this message.
 	SenderID string `json:"sender_id"`
-	// Bridges is the list of bridges that are intended to receive this message.
-	Bridges []*BridgeInfo `json:"bridges"`
+	// Receivers is the list of client IDs that are intended to receive this message.
+	ReceiverIDs []string `json:"receiver_ids"`
 	// Message is the main message content that needs to be delivered.
 	Message string `json:"message"`
+
+	// requestID is the identifier of this request. It is for internal usages only.
+	requestID string
 }
 
 // OutgoingMessageRes is the response of an OutgoingMessageReq from a client.
@@ -33,18 +36,22 @@ type OutgoingMessageReq struct {
 type OutgoingMessageRes struct {
 	// The primary code and reason.
 	*CodeAndReason
-	// Bridges is the slice of all statuses for all the relevant bridges.
-	Bridges []*BridgeStatus
+	// Report is the mapping of clientIDs to their bridge statuses.
+	// It shows detailed info on success/failure of message deliveries.
+	Report map[string][]*BridgeStatus `json:"report"`
 }
 
 // OutgoingMessageInternalReq represents an internal request (from one cluster node to the other) to send a message.
 type OutgoingMessageInternalReq struct {
 	// SenderID is the ID of client who sent this message.
 	SenderID string `json:"sender_id"`
-	// Bridges is the list of bridge identity info(s) that are intended to receive this message.
-	Bridges []*BridgeIdentityInfo `json:"bridges"`
+	// BridgeIIs is the identity info of the bridges that are intended to receive this message.
+	BridgeIIs []*BridgeIdentityInfo `json:"bridge_iis"`
 	// Message is the main message content that needs to be delivered.
 	Message string `json:"message"`
+
+	// requestID is the identifier of this request. It is for internal usages only.
+	requestID string
 }
 
 // OutgoingMessageInternalRes is the response of an OutgoingMessageInternalReq.
@@ -56,6 +63,13 @@ type OutgoingMessageInternalReq struct {
 type OutgoingMessageInternalRes struct {
 	// The primary code and reason.
 	*CodeAndReason
-	// Bridges is the slice of all statuses for all the relevant bridges.
-	Bridges []*BridgeStatus
+	// Report is the slice of statuses for all the relevant bridges.
+	Report []*BridgeStatus `json:"report"`
+}
+
+// clusterCallData is an internally used type for the channel that will collect the cluster call results.
+type clusterCallData struct {
+	req *OutgoingMessageInternalReq
+	res *OutgoingMessageInternalRes
+	err error
 }
