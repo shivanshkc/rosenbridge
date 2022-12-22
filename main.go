@@ -46,9 +46,12 @@ func main() {
 	}
 
 	// Resolving own discovery address at service startup.
-	if _, err := resolver.Read(ctx); err != nil {
+	ownDiscoveryAddr, err := resolver.Read(ctx)
+	if err != nil {
 		panic("failed to resolve discovery address: " + err.Error())
 	}
+	// Logging the resolved discovery address.
+	log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("using discovery address: %s", ownDiscoveryAddr)})
 
 	// Setting core dependencies.
 	core.Discover = resolver
