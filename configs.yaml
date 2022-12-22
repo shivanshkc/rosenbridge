@@ -1,6 +1,6 @@
 ---
 application:
-  name: rosenbridge-1
+  name: rosenbridge
   version: 0.0.0
 
 auth:
@@ -13,8 +13,6 @@ bridges:
 
 discovery:
   discovery_addr: http://0.0.0.0:8080
-  max_addr_resolution_attempts: 10
-  addr_resolution_period_sec: 3
 
 http_server:
   addr: 0.0.0.0:8080

@@ -39,8 +39,10 @@ func main() {
 		resolver = discovery.NewResolverLocal()
 	}
 
-	// Starting a job to resolve the discovery address.
-	go discoveryAddressJob(ctx, resolver)
+	// Resolving own discovery address at service startup.
+	if _, err := resolver.Read(ctx); err != nil {
+		panic("failed to resolve discovery address: " + err.Error())
+	}
 
 	// Setting core dependencies.
 	core.Discover = resolver
@@ -83,35 +85,6 @@ func createDatabaseIndexes(ctx context.Context, bridgeDB *bridges.Database) {
 	}
 
 	log.Info(ctx, &logger.Entry{Payload: "database indexes created"})
-}
-
-// discoveryAddressJob runs a periodic job that tries to resolve the discovery address of the service.
-func discoveryAddressJob(ctx context.Context, resolver core.DiscoveryAddressResolver) {
-	// Prerequisites.
-	conf, log := configs.Get(), logger.Get()
-
-	// Defining the period between two consecutive jobs.
-	jobPeriod := time.Second * time.Duration(conf.Discovery.AddrResolutionPeriodSec)
-
-	// We'll run this job as per the configured number of times.
-	// If successful, this loop returns (and does not break).
-	for i := 0; i < conf.Discovery.MaxAddrResolutionAttempts; i++ { //nolint:varnamelen
-		log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("discovery addr resolution job: %d", i)})
-
-		// Resolving the address.
-		addr, err := resolver.Read(ctx)
-		if err == nil {
-			log.Info(ctx, &logger.Entry{Payload: fmt.Sprintf("discovery addr resolved: %s", addr)})
-			return
-		}
-
-		// Failure in resolution. Logging, sleeping and retrying.
-		log.Warn(ctx, &logger.Entry{Payload: fmt.Errorf("error in discovery addr resolution job: %d: %w", i, err)})
-		time.Sleep(jobPeriod)
-	}
-
-	// Discovery address is required for the service to work. So, we should panic.
-	panic("all attempts to resolve the discovery address failed")
 }
 
 // handler provides the http.Handler of the application.
