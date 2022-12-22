@@ -2,7 +2,7 @@
 application:
   name: rosenbridge
   version: 0.0.0
-  solo_mode: true
+  solo_mode: false
 
 auth:
   internal_username: dev

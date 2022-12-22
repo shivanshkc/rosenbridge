@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// BridgeWS implements the deps.Bridge interface using websockets.
+// BridgeWS implements the core.Bridge interface using websockets.
 type BridgeWS struct {
 	// identityInfo encapsulates the identity attributes of the bridge.
 	identityInfo *core.BridgeIdentityInfo

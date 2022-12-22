@@ -13,7 +13,7 @@ import (
 	"github.com/shivanshkc/rosenbridge/src/utils/httputils"
 )
 
-// Intercom implements deps.Intercom interface using HTTP.
+// Intercom implements core.IntercomService interface using HTTP.
 type Intercom struct {
 	// httpClients persists the http clients for nodes. So, we can reuse existing TCP connections.
 	httpClients map[string]*http.Client

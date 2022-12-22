@@ -14,7 +14,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// Manager implements the deps.BridgeManager interface using a local map.
+// Manager implements the core.BridgeManager interface using a local map.
 type Manager struct {
 	// bridgesByID maps the bridges to their IDs.
 	bridgesByID map[string]core.Bridge

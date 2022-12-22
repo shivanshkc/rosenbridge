@@ -51,7 +51,7 @@ func checkClientID(clientID string) error {
 	return nil
 }
 
-// checkBridgeMessage checks if the provided *models.BridgeMessage is valid.
+// checkBridgeMessage checks if the provided *core.BridgeMessage is valid.
 func checkBridgeMessage(message *core.BridgeMessage) error {
 	// Message should not be empty.
 	if message == nil {
@@ -65,7 +65,7 @@ func checkBridgeMessage(message *core.BridgeMessage) error {
 	return nil
 }
 
-// checkOutgoingMessageReq checks if the provided *models.OutgoingMessageReq is valid.
+// checkOutgoingMessageReq checks if the provided *core.OutgoingMessageReq is valid.
 func checkOutgoingMessageReq(req *core.OutgoingMessageReq) error {
 	// Checking the sender ID.
 	if err := checkClientID(req.SenderID); err != nil {
