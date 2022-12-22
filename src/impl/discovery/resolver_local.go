@@ -16,5 +16,5 @@ func NewResolverLocal() core.DiscoveryAddressResolver {
 }
 
 func (r *ResolverLocal) Read(_ context.Context) (string, error) {
-	return configs.Get().Discovery.DiscoveryAddr, nil
+	return configs.Get().HTTPServer.DiscoveryAddr, nil
 }

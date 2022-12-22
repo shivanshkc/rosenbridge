@@ -24,15 +24,21 @@ func main() {
 	// Prerequisites.
 	ctx, conf, log := context.Background(), configs.Get(), logger.Get()
 
-	// Creating database objects for index creation.
-	bridgeDB := bridges.NewDatabase()
-	// Creating database indexes. This also initiates a connection with the database upon application startup.
-	go createDatabaseIndexes(ctx, bridgeDB)
+	// Initiating the correct database implementation based on configurations.
+	var bridgeDB core.BridgeDatabase
+	if conf.Application.SoloMode {
+		bridgeDB = bridges.NewDatabaseLocal()
+	} else {
+		// Creating database objects for index creation.
+		bridgeDB = bridges.NewDatabase()
+		// Creating database indexes. This also initiates a connection with the database upon application startup.
+		go createDatabaseIndexes(ctx, bridgeDB.(*bridges.Database)) //nolint:forcetypeassert
+	}
 
 	// Instantiating the discovery address resolver to resolve the address at the time of service startup.
 	var resolver core.DiscoveryAddressResolver
 	// Judging which resolver implementation to use.
-	switch conf.Discovery.DiscoveryAddr {
+	switch conf.HTTPServer.DiscoveryAddr {
 	case "":
 		resolver = discovery.NewResolverCloudRun()
 	default:

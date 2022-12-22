@@ -8,6 +8,8 @@ type Model struct {
 		Name string `mapstructure:"name"`
 		// Version of the application.
 		Version string `mapstructure:"version"`
+		// SoloMode is false if Rosenbridge is running as a cluster.
+		SoloMode bool `mapstructure:"solo_mode"`
 	} `mapstructure:"application"`
 
 	// Auth is the model of authentication configs.
@@ -26,20 +28,12 @@ type Model struct {
 		MaxBridgeLimitPerClient int `mapstructure:"max_bridge_limit_per_client"`
 	} `mapstructure:"bridges"`
 
-	// Discovery is the model of the discovery address related configs.
-	Discovery struct {
-		// DiscoveryAddr can be populated if it is known beforehand.
-		DiscoveryAddr string `mapstructure:"discovery_addr"`
-		// MaxAddrResolutionAttempts is max number of times we will attempt to resolve the discovery address.
-		MaxAddrResolutionAttempts int `mapstructure:"max_addr_resolution_attempts"`
-		// AddrResolutionPeriodSec is the number of seconds between two consecutive address resolution attempts.
-		AddrResolutionPeriodSec int `mapstructure:"addr_resolution_period_sec"`
-	} `mapstructure:"discovery"`
-
 	// HTTPServer is the model of the HTTP Server configs.
 	HTTPServer struct {
 		// Addr is the address of the HTTP server.
 		Addr string `mapstructure:"addr"`
+		// DiscoveryAddr can be populated if it is known beforehand.
+		DiscoveryAddr string `mapstructure:"discovery_addr"`
 	} `mapstructure:"http_server"`
 
 	// Logger is the model of the logger configs.

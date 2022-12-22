@@ -2,6 +2,7 @@
 application:
   name: rosenbridge
   version: 0.0.0
+  solo_mode: true
 
 auth:
   internal_username: dev
@@ -11,11 +12,9 @@ bridges:
   max_bridge_limit: 10000
   max_bridge_limit_per_client: 10
 
-discovery:
-  discovery_addr: http://0.0.0.0:8080
-
 http_server:
   addr: 0.0.0.0:8080
+  discovery_addr: http://0.0.0.0:8080
 
 logger:
   level: info

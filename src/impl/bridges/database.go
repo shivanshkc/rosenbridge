@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// Database implements the deps.BridgeDatabase interface using MongoDB.
+// Database implements the core.BridgeDatabase interface using MongoDB.
 type Database struct{}
 
 // NewDatabase is a constructor for *Database.
