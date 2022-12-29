@@ -14,6 +14,9 @@ import (
 
 // GetBridge is the handler for the GET New Bridge API of Rosenbridge.
 func GetBridge(w http.ResponseWriter, r *http.Request) { //nolint:varnamelen // I like the "w" and "r" names.
+	// Prerequisites
+	ctx, log := r.Context(), logger.Get()
+
 	// Reading and validating client ID.
 	clientID := r.URL.Query().Get("client_id")
 	// Validating the client ID.
@@ -27,8 +30,10 @@ func GetBridge(w http.ResponseWriter, r *http.Request) { //nolint:varnamelen // 
 	}
 
 	// Calling the core function.
-	bridge, err := core.CreateBridge(r.Context(), clientID, w, r)
+	bridge, err := core.CreateBridge(ctx, clientID, w, r)
 	if err != nil {
+		// Log the error.
+		log.Error(ctx, &logger.Entry{Payload: fmt.Sprintf("error in core.CreateBridge call: %+v", err)})
 		// Converting to HTTP error.
 		errHTTP := errutils.ToHTTPError(err)
 		// Sending back the response.

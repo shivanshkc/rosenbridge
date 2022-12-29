@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"sync"
 
 	"github.com/shivanshkc/rosenbridge/src/configs"
@@ -27,13 +28,16 @@ type Manager struct {
 	wsUpgrader *websocket.Upgrader
 }
 
+// originChecker is used by the websocket dialler to check if the request origin is valid or not.
+var originChecker = func(r *http.Request) bool { return true }
+
 // NewManager is a constructor for *Manager.
 func NewManager() *Manager {
 	return &Manager{
 		bridgesByID:       map[string]core.Bridge{},
 		bridgesByClientID: map[string][]core.Bridge{},
 		bridgesMutex:      &sync.RWMutex{},
-		wsUpgrader:        &websocket.Upgrader{},
+		wsUpgrader:        &websocket.Upgrader{CheckOrigin: originChecker},
 	}
 }
 
