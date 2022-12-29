@@ -10,14 +10,12 @@ import (
 	"github.com/shivanshkc/rosenbridge/src/utils/datautils"
 	"github.com/shivanshkc/rosenbridge/src/utils/errutils"
 	"github.com/shivanshkc/rosenbridge/src/utils/httputils"
-
-	"github.com/gorilla/mux"
 )
 
 // GetBridge is the handler for the GET New Bridge API of Rosenbridge.
 func GetBridge(w http.ResponseWriter, r *http.Request) { //nolint:varnamelen // I like the "w" and "r" names.
 	// Reading and validating client ID.
-	clientID := mux.Vars(r)["client_id"]
+	clientID := r.URL.Query().Get("client_id")
 	// Validating the client ID.
 	if err := checkClientID(clientID); err != nil {
 		// Converting to HTTP error.
