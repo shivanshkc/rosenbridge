@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/shivanshkc/rosenbridge/compare/v1.1.0...v2.0.0) (2022-12-29)
+
+
+### Features
+
+* **core:** accept client ID in route params for browser compatibility ([741db5a](https://github.com/shivanshkc/rosenbridge/commit/741db5adbd6eb99b5b96af8cb261f949b0fc71f9))
+
+
+### BREAKING CHANGES
+
+* **core:** connect api interface change
+
 # [1.1.0](https://github.com/shivanshkc/rosenbridge/compare/v1.0.1...v1.1.0) (2022-12-22)
 
 
