@@ -1,3 +1,23 @@
+# [2.0.0](https://github.com/shivanshkc/rosenbridge/compare/v1.1.0...v2.0.0) (2022-12-30)
+
+
+### Bug Fixes
+
+* **core:** add missing error logs and websocket origin check ([465ed0a](https://github.com/shivanshkc/rosenbridge/commit/465ed0af4460cfb16d5feb51e8b6ed6c3acbfa6f))
+* **core:** bug fixes ([6dab53b](https://github.com/shivanshkc/rosenbridge/commit/6dab53bfac8d35d41c7b5115e08cbb70b83dc50b))
+
+
+### Features
+
+* **core:** accept client ID in route params for browser compatibility ([741db5a](https://github.com/shivanshkc/rosenbridge/commit/741db5adbd6eb99b5b96af8cb261f949b0fc71f9))
+* **core:** client_id is now a query parameter ([11f0b0f](https://github.com/shivanshkc/rosenbridge/commit/11f0b0fb75e4700152b54d3a960f4086c70a084b))
+
+
+### BREAKING CHANGES
+
+* **core:** GetBridge API change
+* **core:** connect api interface change
+
 # [2.0.0](https://github.com/shivanshkc/rosenbridge/compare/v1.1.0...v2.0.0) (2022-12-29)
 
 
