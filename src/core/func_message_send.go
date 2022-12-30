@@ -88,7 +88,7 @@ func SendMessage(ctx context.Context, request *OutgoingMessageReq) (*OutgoingMes
 		result := <-clusterCallChan
 		// If error is non-nil, it means the entire call failed.
 		if result.err != nil {
-			fillStatuses(bridgeStatuses, codeAndReasonFromErr(err), result.req.BridgeIIs, bridgeIDMap)
+			fillStatuses(bridgeStatuses, codeAndReasonFromErr(result.err), result.req.BridgeIIs, bridgeIDMap)
 			continue
 		}
 

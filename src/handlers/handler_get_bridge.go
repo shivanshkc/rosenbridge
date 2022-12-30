@@ -10,6 +10,8 @@ import (
 	"github.com/shivanshkc/rosenbridge/src/utils/datautils"
 	"github.com/shivanshkc/rosenbridge/src/utils/errutils"
 	"github.com/shivanshkc/rosenbridge/src/utils/httputils"
+
+	"github.com/google/uuid"
 )
 
 // GetBridge is the handler for the GET New Bridge API of Rosenbridge.
@@ -44,7 +46,8 @@ func GetBridge(w http.ResponseWriter, r *http.Request) { //nolint:varnamelen // 
 
 	// Setting the message handler for the bridge.
 	bridge.SetMessageHandler(func(message *core.BridgeMessage) {
-		bridgeMessageHandler(context.Background(), bridge, clientID, message)
+		ctx := httputils.SetReqCtx(context.Background(), &httputils.RequestContextData{ID: uuid.NewString()})
+		bridgeMessageHandler(ctx, bridge, clientID, message)
 	})
 }
 
