@@ -100,8 +100,6 @@ func createDatabaseIndexes(ctx context.Context, bridgeDB *bridges.Database) {
 func handler() http.Handler {
 	// Routers.
 	router := mux.NewRouter()
-	external := router.PathPrefix("/api").Subrouter()
-	internal := router.PathPrefix("/api/internal").Subrouter()
 
 	// Attaching global middlewares.
 	router.Use(middlewares.Recovery)
@@ -109,12 +107,16 @@ func handler() http.Handler {
 	router.Use(middlewares.AccessLogger)
 	router.Use(middlewares.CORS)
 
+	// Subrouters.
+	external := router.PathPrefix("/api").Subrouter()
+	internal := router.PathPrefix("/api/internal").Subrouter()
+
 	// Attaching internal middlewares.
 	internal.Use(middlewares.InternalBasicAuth)
 
 	// External routes.
 	external.HandleFunc("", handlers.GetIntro).Methods(http.MethodGet, http.MethodOptions)
-	external.HandleFunc("/bridge/{client_id}", handlers.GetBridge).Methods(http.MethodGet, http.MethodOptions)
+	external.HandleFunc("/bridge", handlers.GetBridge).Methods(http.MethodGet, http.MethodOptions)
 	external.HandleFunc("/message", handlers.PostMessage).Methods(http.MethodPost, http.MethodOptions)
 	// Internal routes.
 	internal.HandleFunc("/message", handlers.PostMessageInternal).Methods(http.MethodPost, http.MethodOptions)
