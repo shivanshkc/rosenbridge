@@ -39,6 +39,8 @@ func NewWebsocketBridge() *WebsocketBridge {
 // websocket messages.
 //
 // TODO: What to do if Connect is called on an already connected instance?
+//
+//nolint:cyclop // Cyclomatic complexity is fine here.
 func (w *WebsocketBridge) Connect(request *http.Request, writer http.ResponseWriter) error {
 	// Attempt connection upgrade.
 	conn, _, _, err := ws.UpgradeHTTP(request, writer)
@@ -69,6 +71,7 @@ func (w *WebsocketBridge) Connect(request *http.Request, writer http.ResponseWri
 				w.callMessageActions(message)
 			case ws.OpBinary:
 			case ws.OpClose:
+				//nolint:goerr113
 				w.callClosureActions(fmt.Errorf("received close signal on the websocket"))
 				return
 			case ws.OpPing:
@@ -170,6 +173,7 @@ func (w *WebsocketBridge) SendSync(ctx context.Context, req []byte, idFunc func(
 	// Wait for the response message with a timeout.
 	select {
 	case <-ctx.Done():
+		//nolint:goerr113
 		return nil, fmt.Errorf("timed out before receiving response")
 	case resp := <-responseChan:
 		return resp, nil
