@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/shivanshkc/rosenbridge/v2/pkg/config"
-	"github.com/shivanshkc/rosenbridge/v2/pkg/logger"
+	"github.com/shivanshkc/rosenbridge/v3/pkg/config"
+	"github.com/shivanshkc/rosenbridge/v3/pkg/logger"
 )
 
 // TestServer_Start checks if the HTTP server starts correctly with all the valid parameters.

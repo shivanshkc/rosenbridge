@@ -10,10 +10,10 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/shivanshkc/rosenbridge/v2/pkg/config"
-	"github.com/shivanshkc/rosenbridge/v2/pkg/logger"
-	"github.com/shivanshkc/rosenbridge/v2/pkg/utils/errutils"
-	"github.com/shivanshkc/rosenbridge/v2/pkg/utils/signals"
+	"github.com/shivanshkc/rosenbridge/v3/pkg/config"
+	"github.com/shivanshkc/rosenbridge/v3/pkg/logger"
+	"github.com/shivanshkc/rosenbridge/v3/pkg/utils/errutils"
+	"github.com/shivanshkc/rosenbridge/v3/pkg/utils/signals"
 )
 
 // Server is the HTTP server of this application.

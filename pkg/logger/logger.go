@@ -8,8 +8,8 @@ import (
 
 	"github.com/rs/zerolog"
 
-	"github.com/shivanshkc/rosenbridge/v2/pkg/config"
-	"github.com/shivanshkc/rosenbridge/v2/pkg/utils/ctxutils"
+	"github.com/shivanshkc/rosenbridge/v3/pkg/config"
+	"github.com/shivanshkc/rosenbridge/v3/pkg/utils/ctxutils"
 )
 
 // Logger is a wrapper around zerolog.Logger to provide custom methods on it.

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/shivanshkc/rosenbridge/v2/internal/http"
-	"github.com/shivanshkc/rosenbridge/v2/pkg/config"
-	"github.com/shivanshkc/rosenbridge/v2/pkg/logger"
+	"github.com/shivanshkc/rosenbridge/v3/internal/http"
+	"github.com/shivanshkc/rosenbridge/v3/pkg/config"
+	"github.com/shivanshkc/rosenbridge/v3/pkg/logger"
 )
 
 func main() {

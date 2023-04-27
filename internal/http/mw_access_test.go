@@ -9,7 +9,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/shivanshkc/rosenbridge/v2/pkg/utils/ctxutils"
+	"github.com/shivanshkc/rosenbridge/v3/pkg/utils/ctxutils"
 )
 
 //nolint:funlen // This function may get shorter when we write more tests in the future that demand re-usability.

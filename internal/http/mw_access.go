@@ -6,7 +6,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/shivanshkc/rosenbridge/v2/pkg/utils/ctxutils"
+	"github.com/shivanshkc/rosenbridge/v3/pkg/utils/ctxutils"
 )
 
 // AccessLogger middleware handles access logging.

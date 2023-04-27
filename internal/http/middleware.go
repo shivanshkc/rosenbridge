@@ -4,7 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	"github.com/shivanshkc/rosenbridge/v2/pkg/logger"
+	"github.com/shivanshkc/rosenbridge/v3/pkg/logger"
 )
 
 // Middleware implements all the REST middleware methods.
