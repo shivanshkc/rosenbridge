@@ -21,6 +21,7 @@ type Server struct {
 	Config     *config.Config
 	Logger     *logger.Logger
 	Middleware *Middleware
+	Handler    *Handler
 
 	echoInstance *echo.Echo
 }
@@ -80,11 +81,12 @@ func (s *Server) registerRoutes() {
 	s.echoInstance.Use(s.Middleware.Secure)       // Protection against XSS attack, content type sniffing etc
 	s.echoInstance.Use(s.Middleware.AccessLogger) // For access logging.
 
-	// Sample REST method.
+	// Sample REST method, can be used for health check.
 	s.echoInstance.GET("/api", func(c echo.Context) error {
 		s.Logger.ForContext(c.Request().Context()).Info().Msg("sample log statement")
 		return c.JSON(http.StatusOK, map[string]interface{}{"code": "OK"}) //nolint:wrapcheck
 	})
 
-	// More methods can be defined here.
+	// Get a new bridge.
+	s.echoInstance.GET("/api/bridge", s.Handler.GetBridge)
 }
