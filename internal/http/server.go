@@ -30,17 +30,12 @@ type Server struct {
 func (s *Server) Start() {
 	// Create echo instance.
 	s.echoInstance = echo.New()
+	s.echoInstance.HideBanner = true
+	// TODO: Set Echo log level to WARN to avoid "http server started" log.
+
 	// Add a custom HTTP error handler to the echo instance.
 	s.echoInstance.HTTPErrorHandler = func(err error, eCtx echo.Context) {
-		var errHTTP *errutils.HTTPError
-
-		// Determine the type of error by checking with echo's builtin errors.
-		if errors.Is(err, echo.ErrNotFound) {
-			errHTTP = errutils.NotFound().WithReasonErr(err)
-		} else {
-			errHTTP = errutils.ToHTTPError(err)
-		}
-
+		errHTTP := errutils.ToHTTPError(err)
 		_ = eCtx.JSON(errHTTP.StatusCode, errHTTP)
 	}
 

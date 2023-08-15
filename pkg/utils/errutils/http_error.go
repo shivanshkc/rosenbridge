@@ -63,6 +63,8 @@ func ToHTTPError(err interface{}) *HTTPError {
 }
 
 // findErrorType finds the T type in the wrap chain of the given error.
+//
+//nolint:errorlint // errors.As will not work here.
 func findErrorType[T any](err error) T {
 	switch asserted := err.(type) {
 	case T:
