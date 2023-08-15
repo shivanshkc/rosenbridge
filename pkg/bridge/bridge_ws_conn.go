@@ -10,8 +10,6 @@ import (
 
 // Connect attempts a connection upgrade using the given http request and response and sets up a listener for the
 // websocket messages.
-//
-
 func (w *WebsocketBridge) Connect(request *http.Request, writer http.ResponseWriter) error {
 	// Upgrade to websocket connection.
 	if err := w.upgrade(request, writer); err != nil {
