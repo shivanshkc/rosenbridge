@@ -7,4 +7,4 @@ http_server:
 
 logger:
   level: trace
-  pretty: false
+  pretty: true

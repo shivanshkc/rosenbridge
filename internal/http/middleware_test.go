@@ -109,7 +109,7 @@ func TestMiddleware_Secure(t *testing.T) {
 	// Create a mock echo context for HTTP request execution.
 	mockEchoCtx := mockEchoContext(nil, rec)
 
-	// Create an instance of the CORS MW that passes control to a mock handler.
+	// Create an instance of the Secure MW that passes control to a mock handler.
 	secureMW := mockMW.Secure(func(c echo.Context) error {
 		return c.NoContent(http.StatusOK) //nolint:wrapcheck
 	})
