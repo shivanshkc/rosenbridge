@@ -12,12 +12,12 @@ application_container_name = rosenbridge-1
 proto_path=pkg/proto/*.proto
 
 # Builds the project.
-build:
+build: tidy lint
 	@echo "+$@"
 	@go build -o bin/$(application_binary_name) cmd/$(application_name)/main.go
 
 # Runs the project after linting and building it anew.
-run: tidy lint build
+run: build
 	@echo "+$@"
 	@echo "########### Running the application binary ############"
 	@bin/$(application_binary_name)

@@ -76,12 +76,10 @@ func (s *Server) registerRoutes() {
 	s.echoInstance.Use(s.Middleware.Secure)       // Protection against XSS attack, content type sniffing etc
 	s.echoInstance.Use(s.Middleware.AccessLogger) // For access logging.
 
-	// Sample REST method, can be used for health check.
-	s.echoInstance.GET("/api", func(c echo.Context) error {
-		s.Logger.ForContext(c.Request().Context()).Info().Msg("sample log statement")
-		return c.JSON(http.StatusOK, map[string]interface{}{"code": "OK"}) //nolint:wrapcheck
-	})
-
-	// Get a new bridge.
-	s.echoInstance.GET("/api/bridge", s.Handler.GetBridge)
+	// Get a new websocket bridge.
+	s.echoInstance.GET("/api/bridges/ws", s.Handler.GetWebsocketBridge)
+	// List bridges.
+	s.echoInstance.GET("/api/bridges", s.Handler.ListBridges)
+	// Send messages.
+	s.echoInstance.POST("/api/messages", s.Handler.SendMessages)
 }
