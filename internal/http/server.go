@@ -27,18 +27,14 @@ type Server struct {
 }
 
 // Start sets up all the dependencies and routes on the server, and calls ListenAndServe on it.
+//
+// TODO: Set Echo log level to WARN to avoid "http server started" log.
 func (s *Server) Start() {
 	// Create echo instance.
 	s.echoInstance = echo.New()
 	s.echoInstance.HideBanner = true
-	// TODO: Set Echo log level to WARN to avoid "http server started" log.
-
 	// Add a custom HTTP error handler to the echo instance.
-	s.echoInstance.HTTPErrorHandler = func(err error, eCtx echo.Context) {
-		errHTTP := errutils.ToHTTPError(err)
-		_ = eCtx.JSON(errHTTP.StatusCode, errHTTP)
-	}
-
+	s.echoInstance.HTTPErrorHandler = s.errorHandler
 	// Register the REST methods.
 	s.registerRoutes()
 
@@ -80,6 +76,25 @@ func (s *Server) registerRoutes() {
 	s.echoInstance.GET("/api/bridges/ws", s.Handler.GetWebsocketBridge)
 	// List bridges.
 	s.echoInstance.GET("/api/bridges", s.Handler.ListBridges)
-	// Send messages.
-	s.echoInstance.POST("/api/messages", s.Handler.SendMessages)
+	// Send message.
+	s.echoInstance.POST("/api/messages", s.Handler.SendMessage)
+}
+
+// errorHandler handles all echo HTTP errors.
+func (s *Server) errorHandler(err error, eCtx echo.Context) {
+	// Convert to HTTP error to send back the response.
+	errHTTP := errutils.ToHTTPError(err)
+
+	// Log HTTP errors.
+	switch errHTTP.StatusCode / 100 {
+	case 4: //nolint:gomnd // Represents 4xx behaviour.
+		s.Logger.Info().Int("code", errHTTP.StatusCode).Err(errHTTP).Msg("invalid request")
+	case 5: //nolint:gomnd // Represents 5xx behaviour.
+		s.Logger.Error().Int("code", errHTTP.StatusCode).Err(errHTTP).Msg("server error")
+	default:
+		s.Logger.Error().Int("code", errHTTP.StatusCode).Err(errHTTP).Msg("unknown error")
+	}
+
+	// Response.
+	_ = eCtx.JSON(errHTTP.StatusCode, errHTTP)
 }
