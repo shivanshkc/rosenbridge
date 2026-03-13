@@ -11,7 +11,8 @@ type Config struct {
 	HttpServer struct {
 		Addr           string   `json:"addr"`
 		AllowedOrigins []string `json:"allowedOrigins"`
-		CorsMaxAgeSec  int      `json:"corsMaxAgeSec"`
+		// Read here: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Access-Control-Max-Age
+		CorsMaxAgeSec int `json:"corsMaxAgeSec"`
 	} `json:"httpServer"`
 
 	Logger struct {

@@ -27,6 +27,11 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h.underlying.ServeHTTP(w, r)
 }
 
+// Close the handler's operations gracefully.
+func (h *Handler) Close() error {
+	return nil
+}
+
 // addRoutes instantiates the underlying handler and attaches all REST routes to it.
 func (h *Handler) addRoutes() {
 	// A ServeMux will act as the underlying http.Handler.
@@ -37,6 +42,9 @@ func (h *Handler) addRoutes() {
 	mux.HandleFunc("GET /api", func(w http.ResponseWriter, r *http.Request) {
 		httputils.WriteJson(w, http.StatusOK, nil, map[string]any{"code": "OK"})
 	})
+
+	// Create User API.
+	mux.HandleFunc("POST /api/user", h.createUser)
 }
 
 // addMiddleware wraps the underlying handler with all the middleware.
