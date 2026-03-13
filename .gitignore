@@ -8,6 +8,9 @@ bin
 # Config
 config/config.json
 
+# File system database
+secrets
+
 # Profiling data
 pprof
 

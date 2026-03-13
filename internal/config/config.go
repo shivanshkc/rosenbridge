@@ -19,6 +19,10 @@ type Config struct {
 		Level  string `json:"level"`
 		Pretty bool   `json:"pretty"`
 	} `json:"logger"`
+
+	Database struct {
+		UsersFilePath string `json:"usersFilePath"`
+	} `json:"database"`
 }
 
 // Load config from the given JSON file.

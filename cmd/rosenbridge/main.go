@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/shivanshkc/rosenbridge/internal/config"
+	"github.com/shivanshkc/rosenbridge/internal/database"
 	"github.com/shivanshkc/rosenbridge/internal/logger"
 	"github.com/shivanshkc/rosenbridge/internal/rest"
 )
@@ -43,8 +44,14 @@ func main() {
 	wd, _ := os.Getwd()
 	slog.InfoContext(ctx, "config file path", "path", *configPath, "wd", wd)
 
+	// Instantiate database.
+	dbase, err := database.NewFileDatabase(conf.Database.UsersFilePath)
+	if err != nil {
+		panic("failed to init database: " + err.Error())
+	}
+
 	// Set up the API handlers.
-	handler := rest.NewHandler(conf)
+	handler := rest.NewHandler(conf, dbase)
 
 	// The REST API server of the app.
 	httpServer := makeHttpServer(ctx, conf.HttpServer.Addr, handler)

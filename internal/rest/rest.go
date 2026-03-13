@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/shivanshkc/rosenbridge/internal/config"
+	"github.com/shivanshkc/rosenbridge/internal/database"
 	"github.com/shivanshkc/rosenbridge/pkg/utils/httputils"
 )
 
@@ -12,11 +13,12 @@ import (
 // It implements the http.Handler interface for convenient usage with an http.Server.
 type Handler struct {
 	underlying http.Handler
+	dbase      database.Database
 }
 
 // NewHandler returns a new Handler instance.
-func NewHandler(conf config.Config) *Handler {
-	handler := &Handler{}
+func NewHandler(conf config.Config, dbase database.Database) *Handler {
+	handler := &Handler{dbase: dbase}
 
 	handler.addRoutes()
 	handler.addMiddleware(conf)
