@@ -2,12 +2,12 @@ package database
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
@@ -51,7 +51,7 @@ func TestNewFileDatabase(t *testing.T) {
 			name: "Path points to a non-existent file/directory, no error expected",
 			inputPathGenerator: func(tempDir string) (string, error) {
 				// Return a path that does not exist.
-				return filepath.Join(tempDir, uuid.NewString()), nil
+				return filepath.Join(tempDir, "nonexistent-file"), nil
 			},
 			expectedUsersMap:    map[string]User{},
 			expectedErrContains: "",
@@ -135,7 +135,7 @@ func TestFileDatabase_InsertUser_ThreadSafety(t *testing.T) {
 		}()
 	}
 
-	// Ensure success count is exactly 1, and all errors are ErrUserAlreadyExists.
+	// Ensure all errors are ErrUserAlreadyExists.
 	var successCount int
 	for i := 0; i < goroutineCount; i++ {
 		if err := <-errChan; err != nil {
@@ -145,8 +145,54 @@ func TestFileDatabase_InsertUser_ThreadSafety(t *testing.T) {
 		}
 	}
 
+	// Ensure exactly one InsertUser call succeeded.
 	require.Equal(t, 1, successCount)
+	// Ensure the database stored the inserted user.
 	require.Equal(t, map[string]User{user.Username: user}, dbase.users)
+
+	// Read the file to verify if it was written.
+	fileData, err := os.ReadFile(usersFilePath)
+	require.NoError(t, err)
+
+	// Verify the file's JSON matches exactly with the in-memory JSON.
+	var fileDataMap map[string]User
+	require.NoError(t, json.Unmarshal(fileData, &fileDataMap))
+	require.Equal(t, dbase.users, fileDataMap)
+}
+
+func TestFileDatabase_NoChangeOnFail(t *testing.T) {
+	usersFilePath := filepath.Join(t.TempDir(), "users.json")
+	dbase, err := NewFileDatabase(usersFilePath)
+	require.NoError(t, err)
+
+	require.NoError(t, os.Chmod(usersFilePath, 0500))    // Make the file unwritable to make os.WriteFile fail.
+	defer func() { _ = os.Chmod(usersFilePath, 0700) }() // Restore write permission for cleanup.
+
+	err = dbase.InsertUser(context.Background(), User{Username: "shivansh", PasswordHash: "123"})
+	require.ErrorContains(t, err, "permission denied")
+
+	// The users map must NOT have a user entry.
+	require.Equal(t, map[string]User{}, dbase.users)
+}
+
+func TestFileDatabase_GetUser(t *testing.T) {
+	usersFilePath := filepath.Join(t.TempDir(), "users.json")
+	dbase, err := NewFileDatabase(usersFilePath)
+	require.NoError(t, err)
+
+	insertedUser := User{Username: "shivansh", PasswordHash: "123"}
+	err = dbase.InsertUser(context.Background(), insertedUser)
+	require.NoError(t, err)
+
+	// Inserted user should be present.
+	gottenUser1, err := dbase.GetUser(context.Background(), "shivansh")
+	require.NoError(t, err)
+	require.Equal(t, insertedUser, gottenUser1)
+
+	// Fetching non-inserted user should lead to not found error.
+	gottenUser2, err := dbase.GetUser(context.Background(), "nonexistent-user")
+	require.ErrorIs(t, err, ErrUserNotFound)
+	require.Equal(t, User{}, gottenUser2)
 }
 
 // makeInaccessibleFile creates a file in the given temp directory, and then calls chmod on that file to make it
