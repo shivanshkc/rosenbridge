@@ -32,7 +32,7 @@ func TestNewFileDatabase(t *testing.T) {
 			name: "Path points to existing directory, error expected",
 			inputPathGenerator: func(tempDir string) (string, error) {
 				// Create a directory and return the path to that directory.
-				inputPath := filepath.Join(tempDir, "dir-"+uuid.NewString())
+				inputPath := filepath.Join(tempDir, "some-dir")
 				if err := os.Mkdir(inputPath, 0700); err != nil {
 					return "", fmt.Errorf("failed to create directory: %w", err)
 				}
@@ -153,7 +153,7 @@ func TestFileDatabase_InsertUser_ThreadSafety(t *testing.T) {
 // inaccessible. It returns the path to the inaccessible file.
 func makeInaccessibleFile(tempDir string) (string, error) {
 	// Make the file.
-	inputPath := filepath.Join(tempDir, "inaccessible-file-"+uuid.NewString())
+	inputPath := filepath.Join(tempDir, "inaccessible-file.json")
 	if err := os.WriteFile(inputPath, []byte(`{}`), 0700); err != nil {
 		return "", fmt.Errorf("unable to create file: %w", err)
 	}
@@ -168,7 +168,7 @@ func makeInaccessibleFile(tempDir string) (string, error) {
 
 // makeFileWithData creates a file in the given temp directory, writes the given data in it, and returns its path.
 func makeFileWithData(tempDir, data string) (string, error) {
-	inputPath := filepath.Join(tempDir, "some-file-"+uuid.NewString())
+	inputPath := filepath.Join(tempDir, "some-file.json")
 
 	if err := os.WriteFile(inputPath, []byte(data), 0600); err != nil {
 		return "", fmt.Errorf("failed to write file: %w", err)
