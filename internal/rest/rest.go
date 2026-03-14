@@ -1,11 +1,17 @@
 package rest
 
 import (
+	"errors"
+	"log/slog"
 	"net/http"
+	"sync"
 
 	"github.com/shivanshkc/rosenbridge/internal/config"
 	"github.com/shivanshkc/rosenbridge/internal/database"
 	"github.com/shivanshkc/rosenbridge/pkg/utils/httputils"
+
+	"github.com/coder/websocket"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // Handler encapsulates all REST API handlers.
@@ -14,11 +20,19 @@ import (
 type Handler struct {
 	underlying http.Handler
 	dbase      database.Database
+
+	mutex           sync.RWMutex
+	connections     map[string][]*websocket.Conn
+	connectionCount int
 }
 
 // NewHandler returns a new Handler instance.
 func NewHandler(conf config.Config, dbase database.Database) *Handler {
-	handler := &Handler{dbase: dbase}
+	handler := &Handler{
+		dbase:       dbase,
+		mutex:       sync.RWMutex{},
+		connections: map[string][]*websocket.Conn{},
+	}
 
 	handler.addRoutes()
 	handler.addMiddleware(conf)
@@ -31,6 +45,18 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Close the handler's operations gracefully.
 func (h *Handler) Close() error {
+	h.mutex.Lock()
+	snapshot := h.connections // So conn.Close calls do not live inside the mutex.
+	h.connections = map[string][]*websocket.Conn{}
+	h.connectionCount = 0
+	h.mutex.Unlock()
+
+	for username, connList := range snapshot {
+		for i, conn := range connList {
+			slog.Info("closing connection", "username", username, "index", i, "total", len(connList))
+			_ = conn.Close(websocket.StatusNormalClosure, "")
+		}
+	}
 	return nil
 }
 
@@ -47,6 +73,9 @@ func (h *Handler) addRoutes() {
 
 	// Create User API.
 	mux.HandleFunc("POST /api/user", h.createUser)
+
+	// Websocket API.
+	mux.HandleFunc("GET /api/connect", h.getConnection)
 }
 
 // addMiddleware wraps the underlying handler with all the middleware.
@@ -57,4 +86,36 @@ func (h *Handler) addMiddleware(conf config.Config) {
 	next = recoveryMiddleware(next) // <- This will execute first.
 
 	h.underlying = next
+}
+
+// authenticateUser reads basic auth credentials from the request, checks user's existence, and verifies their password.
+// The caller does not need to log the returned error. Also, the returned error is safe to send in the response.
+func (h *Handler) authenticateUser(r *http.Request) (string, error) {
+	ctx := r.Context()
+
+	// These will be verified.
+	username, password, ok := r.BasicAuth()
+	if !ok {
+		slog.ErrorContext(ctx, "basic auth credentials are absent")
+		return "", httputils.Unauthorized().WithReasonStr("basic auth credentials absent")
+	}
+
+	// Get user's details for password verification.
+	user, err := h.dbase.GetUser(ctx, username)
+	if err != nil {
+		if errors.Is(err, database.ErrUserNotFound) {
+			slog.ErrorContext(ctx, "user does not exist")
+			return "", httputils.Unauthorized()
+		}
+		slog.ErrorContext(ctx, "unexpected error while fetching user", "error", err)
+		return "", httputils.InternalServerError()
+	}
+
+	// Verify password.
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
+		slog.ErrorContext(ctx, "password does not match", "error", err)
+		return "", httputils.Unauthorized()
+	}
+
+	return username, nil
 }
