@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -109,6 +110,43 @@ func TestNewFileDatabase(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestFileDatabase_InsertUser_ThreadSafety(t *testing.T) {
+	// Inputs.
+	user := User{Username: "shivansh", PasswordHash: "123"}
+	usersFilePath := filepath.Join(t.TempDir(), "users.json")
+
+	// Set up File database.
+	dbase, err := NewFileDatabase(usersFilePath)
+	require.NoError(t, err)
+
+	// The test works by launching many goroutines. Each goroutine will execute an InsertUser operation.
+	// Since they're all inserting the same user, only one nil-error should be pushed in the channel.
+	// All other errors must be non-nil and ErrUserAlreadyExists.
+	goroutineCount := 100
+	errChan := make(chan error, goroutineCount)
+	defer close(errChan)
+
+	// Launch goroutines and call InsertUser inside each one.
+	for i := 0; i < goroutineCount; i++ {
+		go func() {
+			errChan <- dbase.InsertUser(context.Background(), user)
+		}()
+	}
+
+	// Ensure success count is exactly 1, and all errors are ErrUserAlreadyExists.
+	var successCount int
+	for i := 0; i < goroutineCount; i++ {
+		if err := <-errChan; err != nil {
+			require.ErrorIs(t, err, ErrUserAlreadyExists)
+		} else {
+			successCount++
+		}
+	}
+
+	require.Equal(t, 1, successCount)
+	require.Equal(t, map[string]User{user.Username: user}, dbase.users)
 }
 
 // makeInaccessibleFile creates a file in the given temp directory, and then calls chmod on that file to make it
