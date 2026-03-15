@@ -1,0 +1,100 @@
+@if (disconnected()) {
+  <div class="reconnect-banner">
+    @if (reconnecting()) {
+      <span>Reconnecting...</span>
+    } @else {
+      <span>Connection lost.</span>
+      <button mat-button (click)="reconnect()">Reconnect</button>
+    }
+  </div>
+}
+
+<mat-toolbar class="toolbar">
+  @if (isMobile() && chat.activeUsername()) {
+    <button mat-icon-button (click)="chat.deselectChat()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <span class="toolbar-chat-name">{{ chat.activeUsername() }}</span>
+  } @else {
+    <span class="brand">Rosenbridge</span>
+  }
+
+  <span class="spacer"></span>
+
+  <button mat-icon-button (click)="toggleTheme()" matTooltip="Switch theme">
+    <mat-icon>palette</mat-icon>
+  </button>
+  <button mat-icon-button (click)="openNewChatDialog()" matTooltip="New chat">
+    <mat-icon>add_comment</mat-icon>
+  </button>
+  <button mat-icon-button (click)="logout()" matTooltip="Logout">
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>
+
+<div class="content">
+  <div class="sidebar" [class.hidden-on-mobile]="isMobile() && !!chat.activeUsername()">
+    @if (chat.orderedChats().length === 0) {
+      <div class="empty-state">
+        <mat-icon>forum</mat-icon>
+        <p>No chats yet</p>
+        <button mat-stroked-button (click)="openNewChatDialog()">Start a new chat</button>
+      </div>
+    } @else {
+      <mat-nav-list>
+        @for (user of chat.orderedChats(); track user) {
+          <a
+            mat-list-item
+            (click)="chat.selectChat(user)"
+            [activated]="chat.activeUsername() === user"
+          >
+            <mat-icon matListItemIcon>person</mat-icon>
+            <span matListItemTitle>{{ user }}</span>
+          </a>
+        }
+      </mat-nav-list>
+    }
+  </div>
+
+  <div class="chat-area" [class.hidden-on-mobile]="isMobile() && !chat.activeUsername()">
+    @if (!chat.activeUsername()) {
+      <div class="no-chat-selected">
+        <mat-icon>chat_bubble_outline</mat-icon>
+        <p>Select a chat or start a new one</p>
+      </div>
+    } @else {
+      <div class="messages">
+        @for (msg of chat.activeMessages(); track $index) {
+          <div class="message" [class.own]="msg.own" [class.other]="!msg.own">
+            <div class="bubble">{{ msg.text }}</div>
+          </div>
+        } @empty {
+          <div class="no-messages">
+            <p>No messages yet. Say hello!</p>
+          </div>
+        }
+        <div #messagesEnd></div>
+      </div>
+
+      <div class="message-input">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" class="message-field">
+          <input
+            matInput
+            placeholder="Type a message..."
+            [(ngModel)]="messageText"
+            (keyup.enter)="sendMessage()"
+          />
+        </mat-form-field>
+        <button
+          mat-icon-button
+          class="send-btn"
+          (click)="sendMessage()"
+          [disabled]="!messageText.trim()"
+          matTooltip="Send"
+        >
+          <mat-icon>send</mat-icon>
+        </button>
+      </div>
+    }
+  </div>
+</div>

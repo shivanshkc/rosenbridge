@@ -1,0 +1,28 @@
+.auth-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 16px;
+}
+
+.auth-card {
+  max-width: 420px;
+  width: 100%;
+  padding: 16px;
+}
+
+.brand {
+  font-size: 28px;
+  font-weight: 300;
+  margin: 0 0 4px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.submit-btn {
+  margin-top: 8px;
+  height: 48px;
+}
