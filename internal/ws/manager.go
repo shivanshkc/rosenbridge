@@ -110,7 +110,7 @@ func (m *Manager) Close() error {
 	for username, connList := range snapshot {
 		for i, conn := range connList {
 			slog.Info("closing connection", "username", username, "number", i+1, "total", len(connList))
-			if err := conn.Close(websocket.StatusNormalClosure, ""); err != nil {
+			if err := conn.CloseNow(); err != nil {
 				err = fmt.Errorf("failed to close connection for %s: %w", username, err)
 				errs = append(errs, err)
 			}
