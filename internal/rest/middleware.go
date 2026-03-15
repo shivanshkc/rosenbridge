@@ -105,7 +105,7 @@ func corsMiddleware(next http.Handler, origins []string, maxAgeSec int) http.Han
 		allowedOrigins[o] = struct{}{}
 	}
 
-	// Convenience function. Makes the code below much mor readable.
+	// Convenience function. Makes the code below much more readable.
 	isOriginAllowed := func(origin string) bool {
 		if allowAllOrigins {
 			return true

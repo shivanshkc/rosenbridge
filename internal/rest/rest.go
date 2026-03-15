@@ -67,6 +67,8 @@ func (h *Handler) addRoutes() {
 
 // addMiddleware wraps the underlying handler with all the middleware.
 func (h *Handler) addMiddleware(conf config.Config) {
+	// TODO: Add rate limiting.
+
 	// Middleware attachments. This order is opposite to the execution order.
 	next := bodySizeLimitMiddleware(h.underlying, maxBodyReadBytes)
 	next = corsMiddleware(next, conf.HttpServer.AllowedOrigins, conf.HttpServer.CorsMaxAgeSec)

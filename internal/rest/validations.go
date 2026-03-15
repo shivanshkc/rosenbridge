@@ -23,18 +23,18 @@ var (
 	usernamePattern = regexp.MustCompile("^[a-zA-Z0-9_-]+$")
 
 	errUsernameLength  = fmt.Errorf("username must be between %d and %d characters", usernameMinLength, usernameMaxLength)
-	errUsernamePattern = errors.New("username may only contain lowercase and uppercase letters, numbers, hyphens, and underscores")
+	errUsernamePattern = errors.New("username must only contain lowercase and uppercase letters, numbers, hyphens, and underscores")
 
 	errPasswordLength = fmt.Errorf("password must be between %d and %d characters", passwordMinLength, passwordMaxLength)
 
-	errReceiversEmpty   = fmt.Errorf("at least one receiver must be provided")
-	errReceiversTooMany = fmt.Errorf("at most %d receivers must be provided", receiversMaxCount)
+	errReceiversEmpty   = fmt.Errorf("must provide at least 1 receiver")
+	errReceiversTooMany = fmt.Errorf("must provide at most %d receivers", receiversMaxCount)
 
 	errReceiverLength  = fmt.Errorf("each receiver must be between %d and %d characters", usernameMinLength, usernameMaxLength)
-	errReceiverPattern = errors.New("each receiver may only contain lowercase and uppercase letters, numbers, hyphens, and underscores")
+	errReceiverPattern = errors.New("each receiver must only contain lowercase and uppercase letters, numbers, hyphens, and underscores")
 
-	errMessageEmpty   = fmt.Errorf("message should not be empty")
-	errMessageTooLong = fmt.Errorf("message should not be longer than %d characters", messageMaxLength)
+	errMessageEmpty   = fmt.Errorf("message must not be empty")
+	errMessageTooLong = fmt.Errorf("message must not be longer than %d characters", messageMaxLength)
 )
 
 func validateUsername(username string) error {
