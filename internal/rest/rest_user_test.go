@@ -122,12 +122,14 @@ func TestHandler_createUser(t *testing.T) {
 // fakeDatabase is a mock implementation of database.Database.
 type fakeDatabase struct {
 	errInsertUser error
+	getUser       database.User
+	errGetUser    error
 }
 
 func (f *fakeDatabase) InsertUser(context.Context, database.User) error {
 	return f.errInsertUser
 }
 
-func (f *fakeDatabase) GetUser(context.Context, string) (database.User, error) {
-	return database.User{}, nil
+func (f *fakeDatabase) GetUser(_ context.Context, _ string) (database.User, error) {
+	return f.getUser, f.errGetUser
 }
