@@ -10,6 +10,16 @@ import (
 func (h *Handler) getConnection(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
+	// Browsers cannot send custom headers with WebSocket upgrade requests.
+	// Accept credentials as query parameters as a fallback.
+	if _, _, ok := r.BasicAuth(); !ok {
+		qUsername := r.URL.Query().Get("username")
+		qPassword := r.URL.Query().Get("password")
+		if qUsername != "" && qPassword != "" {
+			r.SetBasicAuth(qUsername, qPassword)
+		}
+	}
+
 	// Make sure credentials are correct.
 	username, err := h.authenticateUser(r)
 	if err != nil {

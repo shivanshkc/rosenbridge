@@ -34,7 +34,7 @@ func (m *Manager) UpgradeAndAddConnection(w http.ResponseWriter, r *http.Request
 	ctx := r.Context()
 
 	// Upgrade to websocket.
-	conn, err := websocket.Accept(w, r, nil)
+	conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{InsecureSkipVerify: true})
 	if err != nil {
 		return fmt.Errorf("failed to upgrade to websocket connection: %w", err)
 	}
