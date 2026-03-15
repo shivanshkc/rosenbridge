@@ -85,7 +85,7 @@ func makeHttpServer(ctx context.Context, addr string, handler http.Handler) *htt
 		ReadTimeout:       0, // Not set to avoid problems with websocket connections.
 		WriteTimeout:      0, // Not set to avoid problems with websocket connections.
 		IdleTimeout:       time.Second * 60,
-		MaxHeaderBytes:    1 << 20, // 2^20 == 1 MiB == 1024 * 1024 bytes
+		MaxHeaderBytes:    64 * 1024, // 64 KB
 		Handler:           handler,
 	}
 }
