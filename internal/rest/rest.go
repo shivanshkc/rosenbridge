@@ -4,13 +4,12 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
-	"sync"
 
 	"github.com/shivanshkc/rosenbridge/internal/config"
 	"github.com/shivanshkc/rosenbridge/internal/database"
+	"github.com/shivanshkc/rosenbridge/internal/ws"
 	"github.com/shivanshkc/rosenbridge/pkg/utils/httputils"
 
-	"github.com/coder/websocket"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -23,18 +22,14 @@ const maxBodyReadBytes = 16 * 1024
 type Handler struct {
 	underlying http.Handler
 	dbase      database.Database
-
-	connectionMutex sync.RWMutex
-	connections     map[string][]*websocket.Conn
-	connectionCount int
+	wsManager  *ws.Manager
 }
 
 // NewHandler returns a new Handler instance.
 func NewHandler(conf config.Config, dbase database.Database) *Handler {
 	handler := &Handler{
-		dbase:           dbase,
-		connectionMutex: sync.RWMutex{},
-		connections:     map[string][]*websocket.Conn{},
+		dbase:     dbase,
+		wsManager: ws.NewManager(),
 	}
 
 	handler.addRoutes()
@@ -48,19 +43,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Close the handler's operations gracefully.
 func (h *Handler) Close() error {
-	h.connectionMutex.Lock()
-	snapshot := h.connections // So conn.Close calls do not live inside the mutex.
-	h.connections = map[string][]*websocket.Conn{}
-	h.connectionCount = 0
-	h.connectionMutex.Unlock()
-
-	for username, connList := range snapshot {
-		for i, conn := range connList {
-			slog.Info("closing connection", "username", username, "index", i, "total", len(connList))
-			_ = conn.Close(websocket.StatusNormalClosure, "")
-		}
-	}
-	return nil
+	return h.wsManager.Close()
 }
 
 // addRoutes instantiates the underlying handler and attaches all REST routes to it.

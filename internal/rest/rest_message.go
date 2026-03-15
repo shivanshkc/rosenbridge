@@ -5,12 +5,9 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
-	"slices"
 	"time"
 
 	"github.com/shivanshkc/rosenbridge/pkg/utils/httputils"
-
-	"github.com/coder/websocket"
 )
 
 func (h *Handler) sendMessage(w http.ResponseWriter, r *http.Request) {
@@ -67,23 +64,12 @@ func (h *Handler) sendMessage(w http.ResponseWriter, r *http.Request) {
 	// Send 202 response. In future releases, this will be changed to a 200 response with message delivery details.
 	httputils.WriteJson(w, http.StatusAccepted, nil, map[string]string{})
 
-	targetConnMap := map[string][]*websocket.Conn{}
-
-	h.connectionMutex.RLock()
-	for _, receiver := range body.Receivers {
-		targetConnMap[receiver] = slices.Clone(h.connections[receiver])
-	}
-	h.connectionMutex.RUnlock()
-
 	// Context for the websocket write operations.
 	sendCtx, cancelFunc := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancelFunc()
 
-	for receiver, connList := range targetConnMap {
-		for _, conn := range connList {
-			if err := conn.Write(sendCtx, websocket.MessageText, eventBytes); err != nil {
-				slog.ErrorContext(ctx, "failed to send message", "receiver", receiver, "error", err)
-			}
-		}
+	// Send to all receivers.
+	if err := h.wsManager.Broadcast(sendCtx, eventBytes, body.Receivers); err != nil {
+		slog.ErrorContext(ctx, "failed to broadcast event", "error", err)
 	}
 }
