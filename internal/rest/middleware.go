@@ -169,3 +169,11 @@ func corsMiddleware(next http.Handler, origins []string, maxAgeSec int) http.Han
 		next.ServeHTTP(w, r)
 	})
 }
+
+// bodySizeLimitMiddleware wraps the given http.Handler to apply a max read limit on the request body.
+func bodySizeLimitMiddleware(next http.Handler, maxBytes int64) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.Body = http.MaxBytesReader(w, r.Body, maxBytes)
+		next.ServeHTTP(w, r)
+	})
+}

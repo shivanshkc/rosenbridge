@@ -14,6 +14,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// maxBodyReadBytes is the max size that a request body is allowed to have.
+const maxBodyReadBytes = 16 * 1024
+
 // Handler encapsulates all REST API handlers.
 //
 // It implements the http.Handler interface for convenient usage with an http.Server.
@@ -21,7 +24,7 @@ type Handler struct {
 	underlying http.Handler
 	dbase      database.Database
 
-	mutex           sync.RWMutex
+	connectionMutex sync.RWMutex
 	connections     map[string][]*websocket.Conn
 	connectionCount int
 }
@@ -29,9 +32,9 @@ type Handler struct {
 // NewHandler returns a new Handler instance.
 func NewHandler(conf config.Config, dbase database.Database) *Handler {
 	handler := &Handler{
-		dbase:       dbase,
-		mutex:       sync.RWMutex{},
-		connections: map[string][]*websocket.Conn{},
+		dbase:           dbase,
+		connectionMutex: sync.RWMutex{},
+		connections:     map[string][]*websocket.Conn{},
 	}
 
 	handler.addRoutes()
@@ -45,11 +48,11 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Close the handler's operations gracefully.
 func (h *Handler) Close() error {
-	h.mutex.Lock()
+	h.connectionMutex.Lock()
 	snapshot := h.connections // So conn.Close calls do not live inside the mutex.
 	h.connections = map[string][]*websocket.Conn{}
 	h.connectionCount = 0
-	h.mutex.Unlock()
+	h.connectionMutex.Unlock()
 
 	for username, connList := range snapshot {
 		for i, conn := range connList {
@@ -73,15 +76,17 @@ func (h *Handler) addRoutes() {
 
 	// Create User API.
 	mux.HandleFunc("POST /api/user", h.createUser)
-
 	// Websocket API.
 	mux.HandleFunc("GET /api/connect", h.getConnection)
+	// Send Message API.
+	mux.HandleFunc("POST /api/message", h.sendMessage)
 }
 
 // addMiddleware wraps the underlying handler with all the middleware.
 func (h *Handler) addMiddleware(conf config.Config) {
 	// Middleware attachments. This order is opposite to the execution order.
-	next := corsMiddleware(h.underlying, conf.HttpServer.AllowedOrigins, conf.HttpServer.CorsMaxAgeSec)
+	next := bodySizeLimitMiddleware(h.underlying, maxBodyReadBytes)
+	next = corsMiddleware(next, conf.HttpServer.AllowedOrigins, conf.HttpServer.CorsMaxAgeSec)
 	next = accessLoggerMiddleware(next)
 	next = recoveryMiddleware(next) // <- This will execute first.
 

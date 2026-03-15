@@ -69,8 +69,8 @@ func (h *Handler) websocketReadLoop(username string, conn *websocket.Conn) {
 // addConnection adds the given connection in the connections map.
 // It returns the total number of connections, and number of connections held by the given user.
 func (h *Handler) addConnection(username string, conn *websocket.Conn) (int, int) {
-	h.mutex.Lock()
-	defer h.mutex.Unlock()
+	h.connectionMutex.Lock()
+	defer h.connectionMutex.Unlock()
 
 	h.connections[username] = append(h.connections[username], conn)
 	h.connectionCount++
@@ -82,8 +82,8 @@ func (h *Handler) addConnection(username string, conn *websocket.Conn) (int, int
 // It does not close the connection.
 // It returns the total number of connections, and number of connections held by the given user.
 func (h *Handler) removeConnection(username string, conn *websocket.Conn) (int, int) {
-	h.mutex.Lock()
-	defer h.mutex.Unlock()
+	h.connectionMutex.Lock()
+	defer h.connectionMutex.Unlock()
 
 	for i, stored := range h.connections[username] {
 		if conn == stored {
