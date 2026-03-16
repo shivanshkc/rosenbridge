@@ -15,6 +15,9 @@ bin
 # Configs
 config
 
+# Documentation
+docs
+
 # File system database
 secrets
 

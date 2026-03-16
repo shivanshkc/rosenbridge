@@ -81,9 +81,11 @@ runs:
 
         # Create application directory
         mkdir -p ~/services/${{ inputs.service_name }}
+        # Create config directory
+        mkdir -p ~/services/${{ inputs.service_name }}/config
 
-        # Move config file to application directory
-        mv /tmp/config.json ~/services/${{ inputs.service_name }}/
+        # Move config file to config directory
+        mv /tmp/config.json ~/services/${{ inputs.service_name }}/config/
 
         # Run new container
         echo "Starting new container..."
@@ -92,7 +94,8 @@ runs:
           --name ${{ inputs.service_name }} \
           --restart unless-stopped \
           --network ${{ inputs.network_name }} \
-          --volume ~/services/${{ inputs.service_name }}/config.json:/service/config/config.json:ro \
+          --volume ~/services/${{ inputs.service_name }}/config/config.json:/service/config/config.json:ro \
+          --volume ~/services/${{ inputs.service_name }}/secrets:/service/secrets \
           ${{ inputs.service_name }}:latest
 
         # Clean up temporary files

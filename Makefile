@@ -46,4 +46,5 @@ container:
 	@echo "################ Running new container ################"
 	@$(DOCKER) run --name $(application_name) --detach --publish 8080:8080 \
         --volume $(PWD)/config/config.json:/service/config/config.json \
+        --volume $(PWD)/secrets:/service/secrets \
         $(application_name):latest
