@@ -1,3 +1,10 @@
+## [3.0.2](https://github.com/shivanshkc/rosenbridge/compare/v3.0.1...v3.0.2) (2026-03-16)
+
+
+### Bug Fixes
+
+* persistent storage for credentials ([7b58d12](https://github.com/shivanshkc/rosenbridge/commit/7b58d12b13502f631a930b4e5906333dd22b8116))
+
 ## [3.0.1](https://github.com/shivanshkc/rosenbridge/compare/v3.0.0...v3.0.1) (2026-03-16)
 
 
