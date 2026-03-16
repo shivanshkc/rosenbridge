@@ -60,10 +60,10 @@ See [docs/API Docs.md](docs/API%20Docs.md) for full details, request/response sc
 
 ## Design Choices
 
-**Why a file for a database?**
+**Why a file for a database?**  
 Rosenbridge is meant to be dependency-free. It will never rely on a separate database server. In this release, a single JSON file proved sufficient. Future releases may move to an embeddable database.
 
-**Why only Basic Auth?**
+**Why only Basic Auth?**  
 This is the MVP release, so the feature set was kept minimal. JWT auth is planned for a future release.
 
 ## Roadmap
