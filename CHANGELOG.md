@@ -1,3 +1,10 @@
+## [3.0.1](https://github.com/shivanshkc/rosenbridge/compare/v3.0.0...v3.0.1) (2026-03-16)
+
+
+### Bug Fixes
+
+* **frontend:** correct scroll behaviour with keyboard ([0a34f76](https://github.com/shivanshkc/rosenbridge/commit/0a34f76aebc7ef58e9800270badda39d2f39b088))
+
 # [3.0.0](https://github.com/shivanshkc/rosenbridge/compare/v2.0.0...v3.0.0) (2026-03-16)
 
 
