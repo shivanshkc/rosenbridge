@@ -1,8 +1,10 @@
 SHELL=/usr/bin/env bash
 
-# Project specific properties.
 application_name        = rosenbridge
 application_binary_name = rosenbridge
+
+# Support both podman and docker.
+DOCKER=$(shell which podman || which docker || echo 'docker')
 
 # Builds the project.
 build:
@@ -29,3 +31,19 @@ tidy:
 lint:
 	@echo "+$@"
 	@golangci-lint run ./...
+
+# Builds the docker image for the project.
+image:
+	@echo "+$@"
+	@$(DOCKER) build --file Containerfile --tag $(application_name):latest .
+
+# Runs the project container assuming the image is already built.
+container:
+	@echo "+$@"
+	@echo "############### Removing old container ################"
+	@$(DOCKER) rm -f $(application_name)
+
+	@echo "################ Running new container ################"
+	@$(DOCKER) run --name $(application_name) --detach --publish 8080:8080 \
+        --volume $(PWD)/config/config.json:/service/config/config.json \
+        $(application_name):latest

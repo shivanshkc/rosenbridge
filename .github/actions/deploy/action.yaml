@@ -92,7 +92,7 @@ runs:
           --name ${{ inputs.service_name }} \
           --restart unless-stopped \
           --network ${{ inputs.network_name }} \
-          --volume ~/services/${{ inputs.service_name }}/config.json:/etc/${{ inputs.service_name }}/config.json:ro \
+          --volume ~/services/${{ inputs.service_name }}/config.json:/service/config/config.json:ro \
           ${{ inputs.service_name }}:latest
 
         # Clean up temporary files
