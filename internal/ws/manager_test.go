@@ -44,7 +44,7 @@ func TestManager_UpgradeAndAddConnection(t *testing.T) {
 	ctx := context.Background()
 	conn, _, err := websocket.Dial(ctx, "ws"+server.URL[4:]+"?username=alice", nil)
 	require.NoError(t, err)
-	defer conn.Close(websocket.StatusNormalClosure, "")
+	defer func() { _ = conn.Close(websocket.StatusNormalClosure, "") }()
 
 	waitForConnectionCount(t, m, 1)
 
@@ -72,11 +72,11 @@ func TestManager_Broadcast(t *testing.T) {
 
 	aliceConn, _, err := websocket.Dial(ctx, "ws"+server.URL[4:]+"?username=alice", nil)
 	require.NoError(t, err)
-	defer aliceConn.Close(websocket.StatusNormalClosure, "")
+	defer func() { _ = aliceConn.Close(websocket.StatusNormalClosure, "") }()
 
 	bobConn, _, err := websocket.Dial(ctx, "ws"+server.URL[4:]+"?username=bob", nil)
 	require.NoError(t, err)
-	defer bobConn.Close(websocket.StatusNormalClosure, "")
+	defer func() { _ = bobConn.Close(websocket.StatusNormalClosure, "") }()
 
 	waitForConnectionCount(t, m, 2)
 
@@ -120,7 +120,7 @@ func TestManager_Close(t *testing.T) {
 
 	clientConn, _, err := websocket.Dial(ctx, "ws"+server.URL[4:]+"?username=alice", nil)
 	require.NoError(t, err)
-	defer clientConn.Close(websocket.StatusNormalClosure, "")
+	defer func() { _ = clientConn.Close(websocket.StatusNormalClosure, "") }()
 
 	waitForConnectionCount(t, m, 1)
 
@@ -156,7 +156,7 @@ func TestManager_ConnectionRemovedOnClientClose(t *testing.T) {
 
 	waitForConnectionCount(t, m, 1)
 
-	clientConn.Close(websocket.StatusNormalClosure, "")
+	_ = clientConn.Close(websocket.StatusNormalClosure, "")
 
 	waitForConnectionCount(t, m, 0)
 
