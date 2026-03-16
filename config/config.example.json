@@ -1,0 +1,18 @@
+{
+  "httpServer": {
+    "addr": "localhost:8080",
+    "allowedOrigins": ["*"],
+    "corsMaxAgeSec": 86400
+  },
+  "logger": {
+    "level": "debug",
+    "pretty": true
+  },
+  "database": {
+    "usersFilePath": "./secrets/users.json"
+  },
+  "frontend": {
+    "backendAddr": "http://localhost:8080",
+    "path": "./client/web"
+  }
+}

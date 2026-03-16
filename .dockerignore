@@ -8,15 +8,18 @@ bin
 # CI/CD files.
 .github
 
-# Configuration files.
-configs.yaml
-
 # IDE Metadata
 .idea
 .vscode
 
-# Secrets
-keys
+# Configs
+config
+
+# File system database
+secrets
+
+# Profiling data
+pprof
 
 # Logs
 logs

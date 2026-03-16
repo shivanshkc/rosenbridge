@@ -1,2 +1,4 @@
-# rosenbridge
-A distributed hub for fast asynchronous communication between machines.
+# Rosenbridge
+
+Rosenbridge is a minimal websocket message broker.
+
