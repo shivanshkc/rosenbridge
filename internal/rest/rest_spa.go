@@ -4,10 +4,10 @@ import (
 	"net/http"
 )
 
-// serveWebClient serves the SPA present in the given directory.
-func serveWebClient(webClientDir string) http.Handler {
+// serveFrontend serves the SPA present in the given directory.
+func serveFrontend(frontendDir string) http.Handler {
 	// http.Dir protects against directory traversal ("../../secrets")
-	dir := http.Dir(webClientDir)
+	dir := http.Dir(frontendDir)
 	server := http.FileServer(dir)
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
