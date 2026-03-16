@@ -71,7 +71,7 @@ func (f *FileDatabase) InsertUser(ctx context.Context, user User) error {
 	clone[user.Username] = user
 
 	// Marshal for file writing.
-	marshalled, err := json.Marshal(clone)
+	marshalled, err := json.MarshalIndent(clone, "", "\t")
 	if err != nil {
 		return fmt.Errorf("failed to marshal users data: %w", err)
 	}
