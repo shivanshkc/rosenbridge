@@ -32,7 +32,7 @@ func NewHandler(conf config.Config, dbase database.Database) *Handler {
 		wsManager: ws.NewManager(),
 	}
 
-	handler.addRoutes()
+	handler.addRoutes(conf.HttpServer.WebClientDir)
 	handler.addMiddleware(conf)
 	return handler
 }
@@ -47,7 +47,7 @@ func (h *Handler) Close() error {
 }
 
 // addRoutes instantiates the underlying handler and attaches all REST routes to it.
-func (h *Handler) addRoutes() {
+func (h *Handler) addRoutes(webClientDir string) {
 	// A ServeMux will act as the underlying http.Handler.
 	mux := http.NewServeMux()
 	h.underlying = mux
@@ -63,6 +63,10 @@ func (h *Handler) addRoutes() {
 	mux.HandleFunc("GET /api/connect", h.getConnection)
 	// Send Message API.
 	mux.HandleFunc("POST /api/message", h.sendMessage)
+
+	if webClientDir != "" {
+		mux.Handle("/", serveWebClient(webClientDir))
+	}
 }
 
 // addMiddleware wraps the underlying handler with all the middleware.

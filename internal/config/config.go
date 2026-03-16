@@ -13,6 +13,8 @@ type Config struct {
 		AllowedOrigins []string `json:"allowedOrigins"`
 		// Read here: https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Access-Control-Max-Age
 		CorsMaxAgeSec int `json:"corsMaxAgeSec"`
+		// Path to the directory that contains the SPA files.
+		WebClientDir string `json:"webClientDir"`
 	} `json:"httpServer"`
 
 	Logger struct {

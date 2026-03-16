@@ -2,7 +2,8 @@
   "httpServer": {
     "addr": "localhost:8080",
     "allowedOrigins": ["*"],
-    "corsMaxAgeSec": 86400
+    "corsMaxAgeSec": 86400,
+    "webClientDir": "./client/web"
   },
   "logger": {
     "level": "debug",
