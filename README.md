@@ -4,6 +4,8 @@ Rosenbridge is a minimal, dependency-free WebSocket message broker that compiles
 
 It ships with its own browser client, [RosenApp](https://github.com/shivanshkc/rosenapp), a lightweight chat application powered by Rosenbridge.
 
+Try the live deployment here: [rosenbridge.shivansh.io](https://rosenbridge.shivansh.io)
+
 ## Quickstart
 
 1. Build the project.
