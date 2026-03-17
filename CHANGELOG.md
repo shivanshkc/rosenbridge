@@ -1,3 +1,10 @@
+# [3.1.0](https://github.com/shivanshkc/rosenbridge/compare/v3.0.2...v3.1.0) (2026-03-17)
+
+
+### Features
+
+* use rosenapp v3.1.0 ([eecce2c](https://github.com/shivanshkc/rosenbridge/commit/eecce2ceda42c17d1a5003c78881f3b2793e9148))
+
 ## [3.0.2](https://github.com/shivanshkc/rosenbridge/compare/v3.0.1...v3.0.2) (2026-03-16)
 
 
